@@ -1,6 +1,7 @@
 package model;
 
 import java.time.LocalDateTime;
+import model.User;
 
 record Announcement(
         Integer id,
@@ -8,10 +9,11 @@ record Announcement(
         String title,
         String description,
         AnnouncementStatus status,
-        LocalDateTime created_at,
-        LocalDateTime updated_at,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt,
         String comment,
-        Employee employee
+        Integer employeeId,
+        Integer userId
 ) {
 
     public Announcement{
@@ -25,7 +27,7 @@ record Announcement(
             throw new IllegalArgumentException("Описание должно быть заполнено!");
         }
     }
-    public Announcement(String category, String title, String description) {
-        this(null, category, title, description, AnnouncementStatus.PENDING, LocalDateTime.now(), null, null, null);
+    public Announcement(String category, String title, String description, Integer userId) {
+        this(null, category, title, description, AnnouncementStatus.PENDING, LocalDateTime.now(), null, null, null, userId);
     }
 }

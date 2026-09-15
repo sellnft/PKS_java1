@@ -1,19 +1,14 @@
 package model;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HexFormat;
-import java.util.List;
-import java.util.Locale;
+import util.PasswordHasher;
 
-record User(
+public record User(
         Integer id,
         String login,
         String fio,
         String passwordHash,
         String email,
-        List<Announcement> announcements
+        UserRole role
 ) {
 
     public User{
@@ -33,20 +28,16 @@ record User(
             throw new IllegalArgumentException("Почта некорректна!");
         }
 
+        if (role == null) {
+            throw new IllegalArgumentException("Роль некорректна!");
+        }
+
         login = login.trim();
         email = email.trim().toLowerCase();
     }
 
-    public User(String login, String password, String fio, String email) {
-        String passwordHash = null;
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
-            passwordHash = HexFormat.of().formatHex(hash);
-        } catch(NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Алгоритма SHA-256 не найдено");
-        }
-
-        this(null, login, fio, passwordHash, email, null);
+    public User(String login, String password, String fio, String email, UserRole role) {
+        String passwordHash = PasswordHasher.hashPassword(password);
+        this(null, login, fio, passwordHash, email, role);
     }
 }

@@ -6,6 +6,7 @@ import repository.UserRepository;
 import service.AnnouncementService;
 import service.UserService;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -16,7 +17,6 @@ public class Main {
     private static final AnnouncementService announcementService =
             new AnnouncementService(new AnnouncementRepository());
 
-    // Кто сейчас залогинен. null = гость.
     private static User currentUser = null;
 
     public static void main(String[] args) {
@@ -111,6 +111,7 @@ public class Main {
         switch (choice) {
             case "1" -> System.out.println("TODO: мои заявки\n");
             case "2" -> createAnnouncementFlow();
+            case "3" -> showAllAnnouncementsFlow();
             case "9" -> logout();
             case "0" -> {
                 System.out.println("Выход.");
@@ -126,6 +127,7 @@ public class Main {
                 Вы вошли как: %s (%s)
                 [1] Мои заявки
                 [2] Создать заявку
+                [3] Все заявки
                 [9] Выйти из аккаунта
                 [0] Выход
                 """.formatted(currentUser.fio(), currentUser.role()));
@@ -157,6 +159,69 @@ public class Main {
         } catch (RuntimeException e) {
             System.out.println("💥 Ошибка БД: " + e.getMessage() + "\n");
         }
+    }
+
+    // ---------- Все заявки ----------
+
+    private static void showAllAnnouncementsFlow() {
+        System.out.println("\n--- Все заявки ---");
+
+        List<Announcement> list;
+        try {
+            list = announcementService.getAllAnnouncements();
+        } catch (RuntimeException e) {
+            System.out.println("💥 Ошибка БД: " + e.getMessage() + "\n");
+            return;
+        }
+
+        if (list.isEmpty()) {
+            System.out.println("Заявок пока нет\n");
+            return;
+        }
+
+        System.out.printf("Всего заявок: %d%n%n", list.size());
+
+        for (Announcement a : list) {
+            printAnnouncement(a);
+        }
+
+        System.out.println();
+    }
+
+    private static void printAnnouncement(Announcement a) {
+        String assignee = (a.employeeId() != null)
+                ? "пользователь #" + a.employeeId()
+                : "не назначен";
+
+        String comment = (a.comment() != null && !a.comment().isBlank())
+                ? a.comment()
+                : "—";
+
+        String updatedAt = (a.updatedAt() != null)
+                ? a.updatedAt().toString()
+                : "—";
+
+        System.out.printf("""
+                ─────────────────────────────────────────
+                #%d [%s] %s
+                  Категория:   %s
+                  Автор:       пользователь #%d
+                  Ответств.:   %s
+                  Создана:     %s
+                  Обновлена:   %s
+                  Комментарий: %s
+                ─────────────────────────────────────────
+                """,
+                a.id(),
+                a.status(),
+                a.title(),
+                a.category(),
+                a.userId(),
+                assignee,
+                a.createdAt(),
+                updatedAt,
+                comment
+        );
     }
 
     private static void logout() {

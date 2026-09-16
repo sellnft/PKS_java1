@@ -9,6 +9,7 @@ import repository.AnnouncementRepository;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 public class AnnouncementService {
 
@@ -27,5 +28,9 @@ public class AnnouncementService {
                 currentUserID);
 
         announcementRepository.addAnnouncement(newAnnouncement);
+    }
+
+    public List<Announcement> getAllAnnouncements() {
+        return announcementRepository.findAll();
     }
 }

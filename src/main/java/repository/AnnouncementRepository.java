@@ -8,6 +8,7 @@ import java.sql.*;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 public class AnnouncementRepository {
@@ -68,5 +69,41 @@ public class AnnouncementRepository {
             throw new RuntimeException("Ошибка получения заявок: " + e);
         }
         return allAnnouncements;
+    }
+
+    public Optional<Announcement> getByID(int id) {
+        Announcement announcementFound = null;
+        String query = "SELECT id, category, title, description, status, created_at, updated_at, comment," +
+                "employee_id, user_id FROM announcements WHERE id = ?";
+
+        try(Connection conn = DatabaseManager.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, id);
+
+            try(ResultSet resultSet = stmt.executeQuery()) {
+                if (resultSet.next()) {
+                    Integer idOfAnnouncement = resultSet.getInt("id");
+                    String category = resultSet.getString("category");
+                    String title = resultSet.getString("title");
+                    String description = resultSet.getString("description");
+                    AnnouncementStatus status = AnnouncementStatus.valueOf(resultSet.getString("status"));
+                    OffsetDateTime createdAt = resultSet.getObject("created_at", OffsetDateTime.class);
+                    OffsetDateTime updatedAt = resultSet.getObject("updated_at", OffsetDateTime.class);
+                    String comment = resultSet.getString("comment");
+                    Integer employeeId = resultSet.getInt("employee_id");
+                    Integer userId = resultSet.getInt("user_id");
+
+                    announcementFound = new Announcement(id, category, title, description, status,
+                            createdAt, updatedAt, comment, employeeId, userId);
+
+                }
+            }
+
+        } catch(SQLException e) {
+            throw new RuntimeException("Ошибка получения заявки по ID", e);
+        }
+
+        return Optional.ofNullable(announcementFound);
     }
 }

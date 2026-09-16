@@ -112,6 +112,7 @@ public class Main {
             case "1" -> System.out.println("TODO: мои заявки\n");
             case "2" -> createAnnouncementFlow();
             case "3" -> showAllAnnouncementsFlow();
+            case "4" -> findAnnouncementByIdFlow();
             case "9" -> logout();
             case "0" -> {
                 System.out.println("Выход.");
@@ -128,6 +129,7 @@ public class Main {
                 [1] Мои заявки
                 [2] Создать заявку
                 [3] Все заявки
+                [4] Найти заявку по ID
                 [9] Выйти из аккаунта
                 [0] Выход
                 """.formatted(currentUser.fio(), currentUser.role()));
@@ -188,6 +190,37 @@ public class Main {
         System.out.println();
     }
 
+    // ---------- Поиск заявки по ID ----------
+
+    private static void findAnnouncementByIdFlow() {
+        System.out.println("\n--- Поиск заявки по ID ---");
+
+        Integer id = askInt("ID заявки: ");
+        if (id == null) {
+            System.out.println("❌ Некорректный ID\n");
+            return;
+        }
+
+        Optional<Announcement> found;
+        try {
+            found = announcementService.getAnnouncementByID(id);
+        } catch (RuntimeException e) {
+            System.out.println("💥 Ошибка БД: " + e.getMessage() + "\n");
+            return;
+        }
+
+        if (found.isEmpty()) {
+            System.out.println("❌ Заявка #" + id + " не найдена\n");
+            return;
+        }
+
+        System.out.println();
+        printAnnouncement(found.get());
+        System.out.println();
+    }
+
+    // ---------- Печать заявки ----------
+
     private static void printAnnouncement(Announcement a) {
         String assignee = (a.employeeId() != null)
                 ? "пользователь #" + a.employeeId()
@@ -240,6 +273,16 @@ public class Main {
                 case "2" -> { return UserRole.EMPLOYEE; }
                 default -> System.out.println("Введите 1 или 2.");
             }
+        }
+    }
+
+    private static Integer askInt(String prompt) {
+        System.out.print(prompt);
+        String input = scanner.nextLine().trim();
+        try {
+            return Integer.parseInt(input);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 }

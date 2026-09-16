@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 
 public class AnnouncementService {
 
@@ -32,5 +33,9 @@ public class AnnouncementService {
 
     public List<Announcement> getAllAnnouncements() {
         return announcementRepository.findAll();
+    }
+
+    public Optional<Announcement> getAnnouncementByID(int id) {
+        return announcementRepository.getByID(id);
     }
 }

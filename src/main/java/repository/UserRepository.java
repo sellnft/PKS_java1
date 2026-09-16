@@ -1,24 +1,27 @@
 package repository;
 
 import model.User;
+import model.UserRole;
 import util.DatabaseManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 
 public class UserRepository {
 
     public void addUser(User newUser) {
-        String query = "INSERT INTO users (login, fio, password_hash, email) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO users (login, password_hash, fio, email, role) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, newUser.login());
-            stmt.setString(2, newUser.fio());
-            stmt.setString(3, newUser.passwordHash());
+            stmt.setString(2, newUser.passwordHash());
+            stmt.setString(3, newUser.fio());
             stmt.setString(4, newUser.email());
+            stmt.setString(5, newUser.role().name());
 
             int affected = stmt.executeUpdate();
 
@@ -26,7 +29,7 @@ public class UserRepository {
                 System.out.println("Пользователь успешно добавлен");
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка добавления пользователя");
+            throw new RuntimeException("Ошибка добавления пользователя: " + e);
         }
     }
 
@@ -42,7 +45,7 @@ public class UserRepository {
                 return resultSet.next();
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка поиска пользователя по телефону");
+            throw new RuntimeException("Ошибка поиска пользователя по логину: " + e);
         }
     }
 
@@ -52,13 +55,39 @@ public class UserRepository {
         try(Connection conn = DatabaseManager.getConnection();
             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.SetString(1, email);
+            stmt.setString(1, email);
 
             try(ResultSet resultSet = stmt.executeQuery()) {
                 return resultSet.next();
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка поиска пользователя по email");
+            throw new RuntimeException("Ошибка поиска пользователя по email: " + e);
         }
+    }
+
+    public Optional<User> findUserByLogin(String login) {
+        String query = "SELECT id, login, password_hash, fio, email, role FROM users WHERE login = ?";
+
+        try(Connection conn = DatabaseManager.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, login);
+
+            try(ResultSet resultSet = stmt.executeQuery()) {
+                if (resultSet.next()) {
+                    int userID = resultSet.getInt("id");
+                    String userLogin = resultSet.getString("login");
+                    String userPasswordHash = resultSet.getString("password_hash");
+                    String userFio = resultSet.getString("fio");
+                    String userEmail = resultSet.getString("email");
+                    UserRole userRole = UserRole.valueOf(resultSet.getString("role"));
+                    return Optional.of(new User(userID, userLogin, userPasswordHash, userFio, userEmail, userRole));
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Ошибка поиска пользователя по логину: " + e);
+        }
+        return Optional.empty();
     }
 }

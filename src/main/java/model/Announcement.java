@@ -1,16 +1,15 @@
 package model;
 
-import java.time.LocalDateTime;
-import model.User;
+import java.time.OffsetDateTime;
 
-record Announcement(
+public record Announcement(
         Integer id,
         String category,
         String title,
         String description,
         AnnouncementStatus status,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt,
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt,
         String comment,
         Integer employeeId,
         Integer userId
@@ -26,8 +25,13 @@ record Announcement(
         if (description == null || description.isBlank()) {
             throw new IllegalArgumentException("Описание должно быть заполнено!");
         }
-    }
-    public Announcement(String category, String title, String description, Integer userId) {
-        this(null, category, title, description, AnnouncementStatus.PENDING, LocalDateTime.now(), null, null, null, userId);
+
+        if (status == null || status.name().isBlank()) {
+            throw new IllegalArgumentException("Статус не может быть пустым!");
+        }
+
+        if (userId == null) {
+            throw new IllegalArgumentException("ID контрагента не модет быть пустым!");
+        }
     }
 }

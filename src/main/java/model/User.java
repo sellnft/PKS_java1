@@ -5,8 +5,8 @@ import util.PasswordHasher;
 public record User(
         Integer id,
         String login,
-        String fio,
         String passwordHash,
+        String fio,
         String email,
         UserRole role
 ) {
@@ -34,10 +34,5 @@ public record User(
 
         login = login.trim();
         email = email.trim().toLowerCase();
-    }
-
-    public User(String login, String password, String fio, String email, UserRole role) {
-        String passwordHash = PasswordHasher.hashPassword(password);
-        this(null, login, fio, passwordHash, email, role);
     }
 }

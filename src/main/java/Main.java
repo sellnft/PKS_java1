@@ -1,4 +1,6 @@
 import model.Announcement;
+import model.AnnouncementStatus;
+import model.CategoryType;
 import model.User;
 import model.UserRole;
 import repository.AnnouncementRepository;
@@ -108,6 +110,50 @@ public class Main {
         printUserMenu();
         String choice = scanner.nextLine().trim();
 
+        if (currentUser.role() == UserRole.EMPLOYEE) {
+            handleEmployeeChoice(choice);
+        } else {
+            handleClientChoice(choice);
+        }
+    }
+
+    private static void printUserMenu() {
+        if (currentUser.role() == UserRole.EMPLOYEE) {
+            printEmployeeMenu();
+        } else {
+            printClientMenu();
+        }
+        System.out.print("> ");
+    }
+
+    private static void printClientMenu() {
+        System.out.println("""
+                ==== Helpdesk (клиент) ====
+                Вы вошли как: %s
+                [1] Мои заявки
+                [2] Создать заявку
+                [3] Все заявки
+                [4] Найти заявку по ID
+                [9] Выйти из аккаунта
+                [0] Выход
+                """.formatted(currentUser.fio()));
+    }
+
+    private static void printEmployeeMenu() {
+        System.out.println("""
+                ==== Helpdesk (сотрудник) ====
+                Вы вошли как: %s
+                [1] Свободные заявки
+                [2] Все заявки
+                [3] Найти заявку по ID
+                [4] Взять заявку в работу
+                [5] Закрыть заявку
+                [9] Выйти из аккаунта
+                [0] Выход
+                """.formatted(currentUser.fio()));
+    }
+
+    private static void handleClientChoice(String choice) {
         switch (choice) {
             case "1" -> System.out.println("TODO: мои заявки\n");
             case "2" -> createAnnouncementFlow();
@@ -122,25 +168,28 @@ public class Main {
         }
     }
 
-    private static void printUserMenu() {
-        System.out.println("""
-                ==== Helpdesk ====
-                Вы вошли как: %s (%s)
-                [1] Мои заявки
-                [2] Создать заявку
-                [3] Все заявки
-                [4] Найти заявку по ID
-                [9] Выйти из аккаунта
-                [0] Выход
-                """.formatted(currentUser.fio(), currentUser.role()));
-        System.out.print("> ");
+    private static void handleEmployeeChoice(String choice) {
+        switch (choice) {
+            case "1" -> showPendingAnnouncementsFlow();
+            case "2" -> showAllAnnouncementsFlow();
+            case "3" -> findAnnouncementByIdFlow();
+            case "4" -> takeAnnouncementInWorkFlow();
+            case "5" -> closeAnnouncementFlow();
+            case "9" -> logout();
+            case "0" -> {
+                System.out.println("Выход.");
+                System.exit(0);
+            }
+            default -> System.out.println("Неизвестная команда.\n");
+        }
     }
+
+    // ---------- Действия ----------
 
     private static void createAnnouncementFlow() {
         System.out.println("\n--- Новая заявка ---");
 
-        System.out.print("Категория: ");
-        String category = scanner.nextLine();
+        CategoryType category = askCategory();
 
         System.out.print("Заголовок: ");
         String title = scanner.nextLine();
@@ -163,8 +212,6 @@ public class Main {
         }
     }
 
-    // ---------- Все заявки ----------
-
     private static void showAllAnnouncementsFlow() {
         System.out.println("\n--- Все заявки ---");
 
@@ -182,15 +229,34 @@ public class Main {
         }
 
         System.out.printf("Всего заявок: %d%n%n", list.size());
-
         for (Announcement a : list) {
             printAnnouncement(a);
         }
-
         System.out.println();
     }
 
-    // ---------- Поиск заявки по ID ----------
+    private static void showPendingAnnouncementsFlow() {
+        System.out.println("\n--- Свободные заявки (в ожидании) ---");
+
+        List<Announcement> list;
+        try {
+            list = announcementService.findAnnouncementsByStatus(AnnouncementStatus.PENDING);
+        } catch (RuntimeException e) {
+            System.out.println("💥 Ошибка БД: " + e.getMessage() + "\n");
+            return;
+        }
+
+        if (list.isEmpty()) {
+            System.out.println("Свободных заявок нет\n");
+            return;
+        }
+
+        System.out.printf("Свободных заявок: %d%n%n", list.size());
+        for (Announcement a : list) {
+            printAnnouncement(a);
+        }
+        System.out.println();
+    }
 
     private static void findAnnouncementByIdFlow() {
         System.out.println("\n--- Поиск заявки по ID ---");
@@ -219,6 +285,57 @@ public class Main {
         System.out.println();
     }
 
+    private static void takeAnnouncementInWorkFlow() {
+        System.out.println("\n--- Взять заявку в работу ---");
+
+        Integer id = askInt("ID заявки: ");
+        if (id == null) {
+            System.out.println("❌ Некорректный ID\n");
+            return;
+        }
+
+        boolean success;
+        try {
+            success = announcementService.setEmployeeForAnnouncement(id, currentUser.id());
+        } catch (RuntimeException e) {
+            System.out.println("💥 Ошибка БД: " + e.getMessage() + "\n");
+            return;
+        }
+
+        if (success) {
+            System.out.println("✅ Заявка #" + id + " взята в работу\n");
+        } else {
+            System.out.println("❌ Не удалось взять заявку #" + id + " в работу\n");
+        }
+    }
+
+    private static void closeAnnouncementFlow() {
+        System.out.println("\n--- Закрытие заявки ---");
+
+        Integer id = askInt("ID заявки: ");
+        if (id == null) {
+            System.out.println("❌ Некорректный ID\n");
+            return;
+        }
+
+        System.out.print("Комментарий при закрытии: ");
+        String comment = scanner.nextLine();
+
+        boolean success;
+        try {
+            success = announcementService.DoneAnnouncement(id, comment);
+        } catch (RuntimeException e) {
+            System.out.println("💥 Ошибка БД: " + e.getMessage() + "\n");
+            return;
+        }
+
+        if (success) {
+            System.out.println("✅ Заявка #" + id + " закрыта\n");
+        } else {
+            System.out.println("❌ Не удалось закрыть заявку #" + id + "\n");
+        }
+    }
+
     // ---------- Печать заявки ----------
 
     private static void printAnnouncement(Announcement a) {
@@ -238,6 +355,7 @@ public class Main {
                 ─────────────────────────────────────────
                 #%d [%s] %s
                   Категория:   %s
+                  Описание:    %s
                   Автор:       пользователь #%d
                   Ответств.:   %s
                   Создана:     %s
@@ -248,7 +366,8 @@ public class Main {
                 a.id(),
                 a.status(),
                 a.title(),
-                a.category(),
+                a.category().getValueToDisplay(),
+                a.description(),
                 a.userId(),
                 assignee,
                 a.createdAt(),
@@ -273,6 +392,25 @@ public class Main {
                 case "2" -> { return UserRole.EMPLOYEE; }
                 default -> System.out.println("Введите 1 или 2.");
             }
+        }
+    }
+
+    private static CategoryType askCategory() {
+        CategoryType[] values = CategoryType.values();
+        while (true) {
+            System.out.println("Выберите категорию:");
+            for (int i = 0; i < values.length; i++) {
+                System.out.printf("  [%d] %s%n", i + 1, values[i].getValueToDisplay());
+            }
+            System.out.print("> ");
+            String choice = scanner.nextLine().trim();
+            try {
+                int idx = Integer.parseInt(choice) - 1;
+                if (idx >= 0 && idx < values.length) {
+                    return values[idx];
+                }
+            } catch (NumberFormatException ignored) { }
+            System.out.println("Введите число от 1 до " + values.length + ".\n");
         }
     }
 

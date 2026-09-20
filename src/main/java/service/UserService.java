@@ -1,6 +1,6 @@
 package service;
 
-import repository.UserRepository;
+import repository.JDBCUserRepository;
 import model.User;
 import model.UserRole;
 import util.PasswordHasher;
@@ -9,30 +9,30 @@ import java.util.Optional;
 
 public class UserService {
 
-    private final UserRepository userRepository;
+    private final JDBCUserRepository jdbcUserRepository;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserService(JDBCUserRepository jdbcUserRepository) {
+        this.jdbcUserRepository = jdbcUserRepository;
     }
 
     public void registerUser(String login, String password, String fio, String email, UserRole role) {
 
-        if (userRepository.checkIfUserExistsByLogin(login)) {
+        if (jdbcUserRepository.checkIfUserExistsByLogin(login)) {
             throw new IllegalArgumentException("Пользователь с таким логином уже существует!");
         }
 
-        if (userRepository.checkIfUserExistsByEmail(email)) {
+        if (jdbcUserRepository.checkIfUserExistsByEmail(email)) {
             throw new IllegalArgumentException("Пользователь с таким email уже существует!");
         }
 
         String passwordHash = PasswordHasher.hashPassword(password);
 
         User user = new User(null, login, passwordHash, fio, email, role);
-        userRepository.addUser(user);
+        jdbcUserRepository.addUser(user);
     }
 
     public Optional<User> loginUser(String login, String password) {
-        Optional<User> usr = userRepository.findUserByLogin(login);
+        Optional<User> usr = jdbcUserRepository.findUserByLogin(login);
         if (usr.isEmpty()) {
             return Optional.empty();
         }

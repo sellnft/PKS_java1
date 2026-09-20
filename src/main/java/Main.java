@@ -3,10 +3,11 @@ import model.AnnouncementStatus;
 import model.CategoryType;
 import model.User;
 import model.UserRole;
-import repository.AnnouncementRepository;
-import repository.UserRepository;
+import repository.JDBCAnnouncementRepository;
+import repository.JDBCUserRepository;
 import service.AnnouncementService;
 import service.UserService;
+import util.LoggingConfig;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,13 +16,14 @@ import java.util.Scanner;
 public class Main {
 
     private static final Scanner scanner = new Scanner(System.in);
-    private static final UserService userService = new UserService(new UserRepository());
+    private static final UserService userService = new UserService(new JDBCUserRepository());
     private static final AnnouncementService announcementService =
-            new AnnouncementService(new AnnouncementRepository());
+            new AnnouncementService(new JDBCAnnouncementRepository());
 
     private static User currentUser = null;
 
     public static void main(String[] args) {
+        LoggingConfig.setup();
         while (true) {
             if (currentUser == null) {
                 guestLoop();

@@ -4,7 +4,7 @@ import java.time.OffsetDateTime;
 
 public record Announcement(
         Integer id,
-        CategoryType category,
+        String category,
         String title,
         String description,
         AnnouncementStatus status,
@@ -16,7 +16,7 @@ public record Announcement(
 ) {
 
     public Announcement{
-        if (category == null) {
+        if (category == null || category.isBlank()) {
             throw new IllegalArgumentException("Категория должна быть заполнена!");
         }
         if (title == null || title.isBlank()) {

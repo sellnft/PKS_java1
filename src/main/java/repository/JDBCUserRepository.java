@@ -9,8 +9,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JDBCUserRepository implements UserRepository{
+    private final Logger logger = Logger.getLogger(JDBCUserRepository.class.getName());
 
     @Override
     public void addUser(User newUser) {
@@ -27,10 +30,12 @@ public class JDBCUserRepository implements UserRepository{
             int affected = stmt.executeUpdate();
 
             if (affected > 0) {
+                logger.info("Новый пользователь успешно довбавлен");
                 System.out.println("Пользователь успешно добавлен");
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка добавления пользователя: " + e);
+            logger.log(Level.SEVERE, "Ошибка добавления пользователя", e);
+            throw new RuntimeException("Ошибка добавления пользователя", e);
         }
     }
 
@@ -44,10 +49,12 @@ public class JDBCUserRepository implements UserRepository{
             stmt.setString(1, login);
 
             try (ResultSet resultSet = stmt.executeQuery()) {
+                logger.info("Успешная проверка пользователя по логину");
                 return resultSet.next();
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка поиска пользователя по логину: " + e);
+            logger.log(Level.SEVERE, "Ошибка поиска пользователя по логину", e);
+            throw new RuntimeException("Ошибка поиска пользователя по логину", e);
         }
     }
 
@@ -61,10 +68,12 @@ public class JDBCUserRepository implements UserRepository{
             stmt.setString(1, email);
 
             try(ResultSet resultSet = stmt.executeQuery()) {
+                logger.info("Успешная проверка пользователя по email");
                 return resultSet.next();
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка поиска пользователя по email: " + e);
+            logger.log(Level.SEVERE, "Ошибка поиска пользователя по email", e);
+            throw new RuntimeException("Ошибка поиска пользователя по email", e);
         }
     }
 
@@ -85,13 +94,16 @@ public class JDBCUserRepository implements UserRepository{
                     String userFio = resultSet.getString("fio");
                     String userEmail = resultSet.getString("email");
                     UserRole userRole = UserRole.valueOf(resultSet.getString("role"));
+                    logger.info("Пользователь успешно найден");
                     return Optional.of(new User(userID, userLogin, userPasswordHash, userFio, userEmail, userRole));
                 }
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Ошибка поиска пользователя по логину: " + e);
+            logger.log(Level.SEVERE, "Ошибка поиска пользователя по логину", e);
+            throw new RuntimeException("Ошибка поиска пользователя по логину", e);
         }
+        logger.warning("Пользователь не найден");
         return Optional.empty();
     }
 }

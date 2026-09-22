@@ -16,7 +16,7 @@
 
     public class JDBCAnnouncementRepository implements AnnouncementRepository {
 
-        private static final Logger logger = Logger.getLogger(JDBCAnnouncementRepository.class.getName());
+        private final Logger logger = Logger.getLogger(JDBCAnnouncementRepository.class.getName());
 
         private Announcement mapRow(ResultSet resultSet) throws SQLException {
             int emplId = resultSet.getInt("employee_id");
@@ -24,7 +24,7 @@
 
             return new Announcement(
                     resultSet.getInt("id"),
-                    CategoryType.valueOf(resultSet.getString("category")),
+                    resultSet.getString("category"),
                     resultSet.getString("title"),
                     resultSet.getString("description"),
                     AnnouncementStatus.valueOf(resultSet.getString("status")),
@@ -44,7 +44,7 @@
             try(Connection conn = DatabaseManager.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(query)) {
 
-                stmt.setString(1, newAnnouncement.category().name());
+                stmt.setString(1, newAnnouncement.category());
                 stmt.setString(2, newAnnouncement.title());
                 stmt.setString(3, newAnnouncement.description());
                 stmt.setString(4, newAnnouncement.status().name());
@@ -241,6 +241,74 @@
             }
             logger.info("Успешно установлен комментарий к заявке " + id);
             return true;
+        }
+
+        @Override
+        public List<Announcement> getAllAnnouncementsOfUser(int userId) {
+            List<Announcement> announcementsFound = new ArrayList<>();
+            String query = "SELECT id, category, title, description, status, created_at, updated_at, comment, employee_id, user_id FROM announcements WHERE user_id = ?";
+
+            try(Connection conn = DatabaseManager.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+
+                stmt.setInt(1, userId);
+
+                try(ResultSet resultSet = stmt.executeQuery()) {
+                    while(resultSet.next()) {
+                        announcementsFound.add(mapRow(resultSet));
+                    }
+                }
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Ошибка получения заявок пользователя " + userId, e);
+                throw new RuntimeException("Ошибка получения заявок пользователя", e);
+            }
+            logger.info("Заявки пользователя " + userId + " успешно получены");
+            return announcementsFound;
+        }
+
+        public boolean cancelAnnouncement(int id) {
+            String query = "UPDATE announcements SET status = ? WHERE id = ?";
+
+            try(Connection conn = DatabaseManager.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+
+                stmt.setString(1, AnnouncementStatus.CANCELLED.name());
+                stmt.setInt(2, id);
+
+                int affected = stmt.executeUpdate();
+
+                if (affected > 0) {
+                    logger.info("заявка #" + id + " успешно отменена");
+                    return true;
+                }
+
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Ошибка отмены заявки", e);
+                throw new RuntimeException("Ошибка отмены заявки", e);
+            }
+            logger.warning("заявка #" + id + "не была отменена");
+            return false;
+        }
+
+        public boolean deleteAnnouncement(int id) {
+            String query = "DELETE FROM announcements WHERE id = ?";
+
+            try(Connection conn = DatabaseManager.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(query)) {
+
+                stmt.setInt(1, id);
+
+                int affected = stmt.executeUpdate();
+                if (affected > 0) {
+                    logger.info("заявка #" + id + " успешно удалена");
+                    return true;
+                }
+            }catch(SQLException e) {
+                logger.log(Level.SEVERE, "Ошибка удаления заявки", e);
+                throw new RuntimeException("Ошибка удаления заявки", e);
+            }
+            logger.warning("заявка #" + id + " не была удалена");
+            return false;
         }
 
     }

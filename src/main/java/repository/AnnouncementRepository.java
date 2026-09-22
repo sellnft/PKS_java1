@@ -13,8 +13,10 @@ public interface AnnouncementRepository {
     List<Announcement> findAll();
     Optional<Announcement> getByID(int id);
     List<Announcement> getAnnouncementsByStatus(AnnouncementStatus status);
+    List<Announcement> getAllAnnouncementsOfUser(int userId);
     boolean setNewAnnouncementStatus(int id, AnnouncementStatus status);
     boolean setEmployeeForAnnouncement(int id, int employeeId);
     boolean setUpdateAtAnnouncement(int id, Timestamp time);
     boolean setCommentToAnnouncement(int id, String comment);
+
 }

@@ -1,10 +1,13 @@
 package service;
 
+import util.ExcelExporter;
+import java.io.IOException;
 import model.Announcement;
 import model.AnnouncementStatus;
 import model.User;
 import repository.JDBCAnnouncementRepository;
 import util.CategoryConfig;
+import util.AnnouncementFilter;
 import exception.AccessDeniedException;
 
 import java.sql.Timestamp;
@@ -83,10 +86,22 @@ public class AnnouncementService {
         return jdbcAnnouncementRepository.cancelAnnouncement(id) && jdbcAnnouncementRepository.setUpdateAtAnnouncement(id, timestamp);
     }
 
+    public List<Announcement> findAnnouncementsByFilter(AnnouncementFilter filter) {
+        return jdbcAnnouncementRepository.findByFilter(filter);
+    }
     public boolean deleteAnnouncement(int id, User currentUser) {
         if (!currentUser.role().isAdmin()) {
             throw new AccessDeniedException("Этот функционал доступен только администраторам системы");
         }
         return jdbcAnnouncementRepository.deleteAnnouncement(id);
+    }
+
+    public void exportAllToExcel(String filePath) {
+        List<Announcement> all = getAllAnnouncements();
+        try {
+            ExcelExporter.writeAnnouncements(all, filePath);
+        } catch (IOException e) {
+            throw new RuntimeException("Не удалось сохранить Excel: " + e.getMessage(), e);
+        }
     }
 }

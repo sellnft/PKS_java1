@@ -10,6 +10,9 @@ import service.UserService;
 import util.CategoryConfig;
 import util.LoggingConfig;
 
+import util.AnnouncementFilter;
+import java.time.OffsetDateTime;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +39,7 @@ public class Main {
         }
     }
 
-    // ---------- Гость ----------
+    // Окно для гостя
 
     private static void guestLoop() {
         printGuestMenu();
@@ -55,7 +58,7 @@ public class Main {
 
     private static void printGuestMenu() {
         System.out.println("""
-                ==== Helpdesk ====
+                Регистрация или вход.
                 [1] Регистрация
                 [2] Вход
                 [0] Выход
@@ -64,7 +67,7 @@ public class Main {
     }
 
     private static void registerUserFlow() {
-        System.out.println("\n--- Регистрация ---");
+        System.out.println("\nРегистрация");
 
         System.out.print("Логин: ");
         String login = scanner.nextLine();
@@ -82,16 +85,16 @@ public class Main {
 
         try {
             userService.registerUser(login, password, fio, email, role);
-            System.out.println("✅ Пользователь создан\n");
+            System.out.println("Пользователь создан\n");
         } catch (IllegalArgumentException e) {
-            System.out.println("❌ " + e.getMessage() + "\n");
+            System.out.println("Не подходящий формат записи " + e.getMessage() + "\n");
         } catch (RuntimeException e) {
-            System.out.println("💥 Ошибка БД: " + e.getMessage() + "\n");
+            System.out.println("Ошибка БД: " + e.getMessage() + "\n");
         }
     }
 
     private static void loginUserFlow() {
-        System.out.println("\n--- Вход ---");
+        System.out.println("\nВход");
 
         System.out.print("Логин: ");
         String login = scanner.nextLine();
@@ -103,13 +106,13 @@ public class Main {
 
         if (logged.isPresent()) {
             currentUser = logged.get();
-            System.out.println("✅ Добро пожаловать, " + currentUser.fio() + "!\n");
+            System.out.println("Добро пожаловать, " + currentUser.fio() + "!\n");
         } else {
-            System.out.println("❌ Неверный логин или пароль\n");
+            System.out.println("Неверный логин или пароль\n");
         }
     }
 
-    // ---------- Залогиненный пользователь ----------
+    // Пользователь залогиненный
 
     private static void userLoop() {
         printUserMenu();
@@ -123,7 +126,7 @@ public class Main {
             handleClientChoice(choice);
         }
     }
-
+    // Отрисовка RBAC
     private static void printUserMenu() {
         if (currentUser.role().isAdmin()) {
             printAdminMenu();
@@ -137,7 +140,7 @@ public class Main {
 
     private static void printClientMenu() {
         System.out.println("""
-                ==== Helpdesk (клиент) ====
+                Сервис обработки заявок.
                 Вы вошли как: %s
                 [1] Мои заявки
                 [2] Создать заявку
@@ -150,13 +153,15 @@ public class Main {
 
     private static void printEmployeeMenu() {
         System.out.println("""
-                ==== Helpdesk (сотрудник) ====
+                Сервис обработки заявок.
                 Вы вошли как: %s
                 [1] Свободные заявки
                 [2] Все заявки
                 [3] Найти заявку по ID
                 [4] Взять заявку в работу
                 [5] Закрыть заявку
+                [6] Фильтр по заявкам
+                [7] Экспорт заявок в Excel
                 [9] Выйти из аккаунта
                 [0] Выход
                 """.formatted(currentUser.fio()));
@@ -164,12 +169,14 @@ public class Main {
 
     private static void printAdminMenu() {
         System.out.println("""
-                ==== Helpdesk (админ) ====
+                Сервис обработки заявок.
                 Вы вошли как: %s
                 [1] Все заявки
                 [2] Найти заявку по ID
                 [3] Отменить заявку
                 [4] Удалить заявку
+                [6] Фильтр по заявкам
+                [7] Экспорт заявок в Excel
                 [9] Выйти из аккаунта
                 [0] Выход
                 """.formatted(currentUser.fio()));
@@ -197,6 +204,8 @@ public class Main {
             case "3" -> findAnnouncementByIdFlow();
             case "4" -> takeAnnouncementInWorkFlow();
             case "5" -> closeAnnouncementFlow();
+            case "6" -> showAnnouncementsByFilter();
+            case "7" -> exportAnnouncementsFlow();
             case "9" -> logout();
             case "0" -> {
                 System.out.println("Выход.");
@@ -212,6 +221,8 @@ public class Main {
             case "2" -> findAnnouncementByIdFlow();
             case "3" -> cancelAnnouncementFlow();
             case "4" -> deleteAnnouncementFlow();
+            case "6" -> showAnnouncementsByFilter();
+            case "7" -> exportAnnouncementsFlow();
             case "9" -> logout();
             case "0" -> {
                 System.out.println("Выход.");
@@ -224,7 +235,7 @@ public class Main {
     // ---------- Действия ----------
 
     private static void createAnnouncementFlow() {
-        System.out.println("\n--- Новая заявка ---");
+        System.out.println("\nСоздайте заявку.");
 
         String category = askCategory();
 
@@ -241,22 +252,22 @@ public class Main {
                     title,
                     description
             );
-            System.out.println("✅ Заявка создана\n");
+            System.out.println("Заявка успешно создана\n");
         } catch (IllegalArgumentException e) {
-            System.out.println("❌ " + e.getMessage() + "\n");
+            System.out.println("Не правильно введены данные: " + e.getMessage() + "\n");
         } catch (RuntimeException e) {
-            System.out.println("💥 Ошибка БД: " + e.getMessage() + "\n");
+            System.out.println("Ошибка БД: " + e.getMessage() + "\n");
         }
     }
 
     private static void showMyAnnouncementsFlow() {
-        System.out.println("\n--- Мои заявки ---");
+        System.out.println("\nВаши заявки");
 
         List<Announcement> list;
         try {
             list = announcementService.getAllAnnouncementsOfUser(currentUser.id());
         } catch (RuntimeException e) {
-            System.out.println("💥 Ошибка БД: " + e.getMessage() + "\n");
+            System.out.println("Ошибка БД: " + e.getMessage() + "\n");
             return;
         }
 
@@ -279,7 +290,7 @@ public class Main {
         try {
             list = announcementService.getAllAnnouncements();
         } catch (RuntimeException e) {
-            System.out.println("💥 Ошибка БД: " + e.getMessage() + "\n");
+            System.out.println("Ошибка БД: " + e.getMessage() + "\n");
             return;
         }
 
@@ -344,7 +355,158 @@ public class Main {
         printAnnouncement(found.get());
         System.out.println();
     }
+    private static OffsetDateTime askDate(String prompt, boolean endOfDay) {
+        System.out.print(prompt);
+        String input = scanner.nextLine().trim();
 
+        if (input.isEmpty()) {
+            return null;
+        }
+
+        try {
+            java.time.LocalDate date = java.time.LocalDate.parse(input);
+            java.time.LocalDateTime dt = endOfDay
+                    ? date.atTime(23, 59, 59)
+                    : date.atStartOfDay();
+            return dt.atOffset(java.time.ZoneOffset.UTC);
+        } catch (java.time.format.DateTimeParseException e) {
+            System.out.println("Неверный формат даты. Ожидается ГГГГ-ММ-ДД");
+            return null;
+        }
+    }
+    private static void showAnnouncementsByFilter() {
+        System.out.println("""
+            
+            Фильтр заявок.
+            [1] По диапазону дат
+            [2] По автору (логин)
+            [0] Назад
+            """);
+        System.out.print("> ");
+
+        String choice = scanner.nextLine().trim();
+        switch (choice) {
+            case "1" -> filterByDateRangeFlow();
+            case "2" -> filterByAuthorFlow();
+            case "0" -> { /* выход */ }
+            default -> System.out.println("Неизвестная команда.\n");
+        }
+    }
+
+    private static void filterByDateRangeFlow() {
+        System.out.println("\nФильтр по диапазону дат");
+        System.out.println("Формат: ГГГГ-ММ-ДД (например, 2026-09-24)");
+        System.out.println("Пустая строка = без границы.\n");
+
+        OffsetDateTime from = askDate("От: ", false);
+        OffsetDateTime to   = askDate("До: ", true);
+
+        if (from == null && to == null) {
+            System.out.println("Не заданы даты\n");
+            return;
+        }
+
+        AnnouncementFilter filter = new AnnouncementFilter()
+                .from(from)
+                .to(to);
+
+        runFilter(filter);
+    }
+
+    private static void filterByAuthorFlow() {
+        System.out.println("\nФильтр по автору");
+        System.out.print("Логин автора: ");
+        String login = scanner.nextLine().trim();
+
+        if (login.isEmpty()) {
+            System.out.println("Логин не может быть пустым\n");
+            return;
+        }
+
+        AnnouncementFilter filter = new AnnouncementFilter()
+                .authorLogin(login);
+
+        runFilter(filter);
+    }
+
+    private static void runFilter(AnnouncementFilter filter) {
+        List<Announcement> list;
+        try {
+            list = announcementService.findAnnouncementsByFilter(filter);
+        } catch (RuntimeException e) {
+            System.out.println("Ошибка БД: " + e.getMessage() + "\n");
+            return;
+        }
+        printFiltered(list);
+    }
+
+    private static void printFiltered(List<Announcement> list) {
+        if (list.isEmpty()) {
+            System.out.println("Ничего не найдено по фильтру\n");
+            return;
+        }
+        System.out.printf("Найдено: %d%n%n", list.size());
+        for (Announcement a : list) {
+            printAnnouncement(a);
+        }
+        System.out.println();
+    }
+
+    private static OffsetDateTime askDateTime(String prompt) {
+        System.out.print(prompt);
+        String input = scanner.nextLine().trim();
+
+        if (input.isEmpty()) {
+            return null;
+        }
+
+        try {
+            if (input.length() <= 13) {         // 2026-09-24T15 → добавим :00
+                return java.time.LocalDateTime
+                        .parse(input + ":00")
+                        .atOffset(java.time.ZoneOffset.UTC);
+            }
+            return java.time.LocalDateTime
+                    .parse(input)
+                    .atOffset(java.time.ZoneOffset.UTC);
+        } catch (java.time.format.DateTimeParseException e) {
+            System.out.println("⚠️ Неверный формат даты");
+            return null;
+        }
+    }
+    private static void exportAnnouncementsFlow() {
+        System.out.println("\nЭкспорт всех заявок в Excel");
+        System.out.println("Укажите путь к папке.");
+        System.out.println("Пример вводимого пути:  C:\\Users\\Documents\n");
+
+        System.out.print("Путь: ");
+        String input = scanner.nextLine().trim();
+
+        if (input.startsWith("\"") && input.endsWith("\"") && input.length() >= 2) {
+            input = input.substring(1, input.length() - 1);
+        }
+
+        if (input.isEmpty()) {
+            System.out.println("Путь не может быть пустым\n");
+            return;
+        }
+
+        java.io.File target = new java.io.File(input);
+
+        String filePath = input;
+        if (target.isDirectory()) {
+            filePath = new java.io.File(target, "announcements.xlsx").getAbsolutePath();
+        } else {
+            System.out.println("Путь указан неверно");
+        }
+
+        try {
+            announcementService.exportAllToExcel(filePath);
+            System.out.println("Заявки экспортированы в: " + filePath + "\n");
+        } catch (RuntimeException e) {
+            System.out.println("Ошибка экспорта: " + e.getMessage() + "\n");
+        }
+    }
     private static void takeAnnouncementInWorkFlow() {
         System.out.println("\n--- Взять заявку в работу ---");
 
@@ -388,26 +550,26 @@ public class Main {
         try {
             success = announcementService.DoneAnnouncement(id, comment, currentUser);
         } catch (AccessDeniedException e) {
-            System.out.println("🚫 " + e.getMessage() + "\n");
+            System.out.println(e.getMessage() + "\n");
             return;
         } catch (RuntimeException e) {
-            System.out.println("💥 Ошибка БД: " + e.getMessage() + "\n");
+            System.out.println("Ошибка БД: " + e.getMessage() + "\n");
             return;
         }
 
         if (success) {
-            System.out.println("✅ Заявка #" + id + " закрыта\n");
+            System.out.println("Заявка #" + id + " закрыта\n");
         } else {
-            System.out.println("❌ Не удалось закрыть заявку #" + id + "\n");
+            System.out.println("Не удалось закрыть заявку #" + id + "\n");
         }
     }
 
     private static void cancelAnnouncementFlow() {
-        System.out.println("\n--- Отмена заявки (админ) ---");
+        System.out.println("\nОтменить заявку.");
 
         Integer id = askInt("ID заявки: ");
         if (id == null) {
-            System.out.println("❌ Некорректный ID\n");
+            System.out.println("Некорректный ID\n");
             return;
         }
 
@@ -423,9 +585,9 @@ public class Main {
         }
 
         if (success) {
-            System.out.println("✅ Заявка #" + id + " отменена\n");
+            System.out.println("Заявка #" + id + " отменена\n");
         } else {
-            System.out.println("❌ Не удалось отменить заявку #" + id + "\n");
+            System.out.println("Не удалось отменить заявку #" + id + "\n");
         }
     }
 
@@ -434,7 +596,7 @@ public class Main {
 
         Integer id = askInt("ID заявки: ");
         if (id == null) {
-            System.out.println("❌ Некорректный ID\n");
+            System.out.println("Некорректный ID\n");
             return;
         }
 
@@ -449,17 +611,17 @@ public class Main {
         try {
             success = announcementService.deleteAnnouncement(id, currentUser);
         } catch (AccessDeniedException e) {
-            System.out.println("🚫 " + e.getMessage() + "\n");
+            System.out.println(e.getMessage() + "\n");
             return;
         } catch (RuntimeException e) {
-            System.out.println("💥 Ошибка БД: " + e.getMessage() + "\n");
+            System.out.println("Ошибка БД: " + e.getMessage() + "\n");
             return;
         }
 
         if (success) {
-            System.out.println("✅ Заявка #" + id + " удалена\n");
+            System.out.println("Заявка #" + id + " удалена\n");
         } else {
-            System.out.println("❌ Заявка #" + id + " не найдена\n");
+            System.out.println("Заявка #" + id + " не найдена\n");
         }
     }
 

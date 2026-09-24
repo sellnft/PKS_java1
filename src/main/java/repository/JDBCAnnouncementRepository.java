@@ -4,7 +4,7 @@
     import model.AnnouncementStatus;
     import model.CategoryType;
     import util.DatabaseManager;
-
+    import util.AnnouncementFilter;
     import java.sql.*;
     import java.time.OffsetDateTime;
     import java.util.ArrayList;
@@ -309,6 +309,57 @@
             }
             logger.warning("заявка #" + id + " не была удалена");
             return false;
+        }
+        @Override
+        public List<Announcement> findByFilter(AnnouncementFilter filter) {
+            List<Announcement> result = new ArrayList<>();
+
+            StringBuilder sql = new StringBuilder("""
+            SELECT a.id, a.category, a.title, a.description, a.status,
+                   a.created_at, a.updated_at, a.comment,
+                   a.employee_id, a.user_id
+            FROM announcements a
+            JOIN users u ON u.id = a.user_id
+            WHERE 1 = 1
+            """);
+
+            List<Object> params = new ArrayList<>();
+
+            if (filter.getFrom() != null) {
+                sql.append(" AND a.created_at >= ?");
+                params.add(filter.getFrom());
+            }
+            if (filter.getTo() != null) {
+                sql.append(" AND a.created_at <= ?");
+                params.add(filter.getTo());
+            }
+            if (filter.hasAuthor()) {
+                sql.append(" AND LOWER(u.login) = LOWER(?)");
+                params.add(filter.getAuthorLogin());
+            }
+
+            sql.append(" ORDER BY a.created_at DESC");
+
+            try (Connection conn = DatabaseManager.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+
+                for (int i = 0; i < params.size(); i++) {
+                    stmt.setObject(i + 1, params.get(i));
+                }
+
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        result.add(mapRow(rs));
+                    }
+                }
+
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Ошибка фильтрации заявок", e);
+                throw new RuntimeException("Ошибка фильтрации заявок", e);
+            }
+
+            logger.info("Найдено заявок по фильтру: " + result.size());
+            return result;
         }
 
     }

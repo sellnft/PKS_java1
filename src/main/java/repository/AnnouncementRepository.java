@@ -2,6 +2,7 @@ package repository;
 
 import model.Announcement;
 import model.AnnouncementStatus;
+import util.AnnouncementFilter;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -18,5 +19,5 @@ public interface AnnouncementRepository {
     boolean setEmployeeForAnnouncement(int id, int employeeId);
     boolean setUpdateAtAnnouncement(int id, Timestamp time);
     boolean setCommentToAnnouncement(int id, String comment);
-
+    List<Announcement> findByFilter(AnnouncementFilter filter);
 }

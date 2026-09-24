@@ -9,10 +9,9 @@ import service.AnnouncementService;
 import service.UserService;
 import util.CategoryConfig;
 import util.LoggingConfig;
-
 import util.AnnouncementFilter;
-import java.time.OffsetDateTime;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,8 +37,6 @@ public class Main {
             }
         }
     }
-
-    // Окно для гостя
 
     private static void guestLoop() {
         printGuestMenu();
@@ -112,8 +109,6 @@ public class Main {
         }
     }
 
-    // Пользователь залогиненный
-
     private static void userLoop() {
         printUserMenu();
         String choice = scanner.nextLine().trim();
@@ -126,7 +121,7 @@ public class Main {
             handleClientChoice(choice);
         }
     }
-    // Отрисовка RBAC
+
     private static void printUserMenu() {
         if (currentUser.role().isAdmin()) {
             printAdminMenu();
@@ -232,8 +227,6 @@ public class Main {
         }
     }
 
-    // ---------- Действия ----------
-
     private static void createAnnouncementFlow() {
         System.out.println("\nСоздайте заявку.");
 
@@ -313,7 +306,7 @@ public class Main {
         try {
             list = announcementService.findAnnouncementsByStatus(AnnouncementStatus.PENDING);
         } catch (RuntimeException e) {
-            System.out.println("💥 Ошибка БД: " + e.getMessage() + "\n");
+            System.out.println("Ошибка БД: " + e.getMessage() + "\n");
             return;
         }
 
@@ -334,7 +327,7 @@ public class Main {
 
         Integer id = askInt("ID заявки: ");
         if (id == null) {
-            System.out.println("❌ Некорректный ID\n");
+            System.out.println("Некорректный ID\n");
             return;
         }
 
@@ -342,12 +335,12 @@ public class Main {
         try {
             found = announcementService.getAnnouncementByID(id);
         } catch (RuntimeException e) {
-            System.out.println("💥 Ошибка БД: " + e.getMessage() + "\n");
+            System.out.println("Ошибка БД: " + e.getMessage() + "\n");
             return;
         }
 
         if (found.isEmpty()) {
-            System.out.println("❌ Заявка #" + id + " не найдена\n");
+            System.out.println("Заявка #" + id + " не найдена\n");
             return;
         }
 
@@ -355,6 +348,7 @@ public class Main {
         printAnnouncement(found.get());
         System.out.println();
     }
+
     private static OffsetDateTime askDate(String prompt, boolean endOfDay) {
         System.out.print(prompt);
         String input = scanner.nextLine().trim();
@@ -374,6 +368,7 @@ public class Main {
             return null;
         }
     }
+
     private static void showAnnouncementsByFilter() {
         System.out.println("""
             
@@ -388,7 +383,7 @@ public class Main {
         switch (choice) {
             case "1" -> filterByDateRangeFlow();
             case "2" -> filterByAuthorFlow();
-            case "0" -> { /* выход */ }
+            case "0" -> { }
             default -> System.out.println("Неизвестная команда.\n");
         }
     }
@@ -461,7 +456,7 @@ public class Main {
         }
 
         try {
-            if (input.length() <= 13) {         // 2026-09-24T15 → добавим :00
+            if (input.length() <= 13) {
                 return java.time.LocalDateTime
                         .parse(input + ":00")
                         .atOffset(java.time.ZoneOffset.UTC);
@@ -470,10 +465,11 @@ public class Main {
                     .parse(input)
                     .atOffset(java.time.ZoneOffset.UTC);
         } catch (java.time.format.DateTimeParseException e) {
-            System.out.println("⚠️ Неверный формат даты");
+            System.out.println("Неверный формат даты");
             return null;
         }
     }
+
     private static void exportAnnouncementsFlow() {
         System.out.println("\nЭкспорт всех заявок в Excel");
         System.out.println("Укажите путь к папке.");
@@ -507,12 +503,13 @@ public class Main {
             System.out.println("Ошибка экспорта: " + e.getMessage() + "\n");
         }
     }
+
     private static void takeAnnouncementInWorkFlow() {
         System.out.println("\n--- Взять заявку в работу ---");
 
         Integer id = askInt("ID заявки: ");
         if (id == null) {
-            System.out.println("❌ Некорректный ID\n");
+            System.out.println("Некорректный ID\n");
             return;
         }
 
@@ -520,17 +517,17 @@ public class Main {
         try {
             success = announcementService.setEmployeeForAnnouncement(id, currentUser);
         } catch (AccessDeniedException e) {
-            System.out.println("🚫 " + e.getMessage() + "\n");
+            System.out.println(e.getMessage() + "\n");
             return;
         } catch (RuntimeException e) {
-            System.out.println("💥 Ошибка БД: " + e.getMessage() + "\n");
+            System.out.println("Ошибка БД: " + e.getMessage() + "\n");
             return;
         }
 
         if (success) {
-            System.out.println("✅ Заявка #" + id + " взята в работу\n");
+            System.out.println("Заявка #" + id + " взята в работу\n");
         } else {
-            System.out.println("❌ Не удалось взять заявку #" + id + "\n");
+            System.out.println("Не удалось взять заявку #" + id + "\n");
         }
     }
 
@@ -539,7 +536,7 @@ public class Main {
 
         Integer id = askInt("ID заявки: ");
         if (id == null) {
-            System.out.println("❌ Некорректный ID\n");
+            System.out.println("Некорректный ID\n");
             return;
         }
 
@@ -577,10 +574,10 @@ public class Main {
         try {
             success = announcementService.cancelAnnouncement(id, currentUser);
         } catch (AccessDeniedException e) {
-            System.out.println("🚫 " + e.getMessage() + "\n");
+            System.out.println(e.getMessage() + "\n");
             return;
         } catch (RuntimeException e) {
-            System.out.println("💥 Ошибка БД: " + e.getMessage() + "\n");
+            System.out.println("Ошибка БД: " + e.getMessage() + "\n");
             return;
         }
 
@@ -625,8 +622,6 @@ public class Main {
         }
     }
 
-    // ---------- Печать заявки ----------
-
     private static void printAnnouncement(Announcement a) {
         String assignee = (a.employeeId() != null)
                 ? "пользователь #" + a.employeeId()
@@ -666,11 +661,9 @@ public class Main {
     }
 
     private static void logout() {
-        System.out.println("👋 До свидания, " + currentUser.fio() + "!\n");
+        System.out.println("До свидания, " + currentUser.fio() + "!\n");
         currentUser = null;
     }
-
-    // ---------- Помощники ----------
 
     private static UserRole askRole() {
         while (true) {

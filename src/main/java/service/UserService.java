@@ -43,4 +43,8 @@ public class UserService {
         }
         return Optional.of(user);
     }
+
+    public Optional<String> getFioByID(int id) {
+        return jdbcUserRepository.findFioByID(id);
+    }
 }

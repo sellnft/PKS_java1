@@ -106,4 +106,27 @@ public class JDBCUserRepository implements UserRepository{
         logger.warning("Пользователь не найден");
         return Optional.empty();
     }
+
+    public Optional<String> findFioByID(int id) {
+        String query = "SELECT fio FROM users where id = ?";
+
+        try (Connection conn = DatabaseManager.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, id);
+
+            try (ResultSet resultSet = stmt.executeQuery()) {
+                if (resultSet.next()) {
+                    logger.info("Поиск по ФИО успешно отработал");
+                    return Optional.of(resultSet.getString("fio"));
+                }
+            }
+
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Ошибка при поиске ФИО пользователя по ID", e);
+            throw new RuntimeException("Ошибка при поиске ФИО пользователя по ID", e);
+        }
+        logger.warning("Поиск ФИО ничего не нашел");
+        return Optional.empty();
+    }
 }

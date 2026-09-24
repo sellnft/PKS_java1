@@ -623,8 +623,10 @@ public class Main {
     }
 
     private static void printAnnouncement(Announcement a) {
-        String assignee = (a.employeeId() != null)
-                ? "пользователь #" + a.employeeId()
+        String authorFio = userService.getFioByID(a.userId()).orElse("пользователь #" + a.userId());
+
+        String assigneeFio = (a.employeeId() != null)
+                ? userService.getFioByID(a.employeeId()).orElse("пользователь #" + a.employeeId())
                 : "не назначен";
 
         String comment = (a.comment() != null && !a.comment().isBlank())
@@ -640,7 +642,7 @@ public class Main {
                 #%d [%s] %s
                   Категория:   %s
                   Описание:    %s
-                  Автор:       пользователь #%d
+                  Автор:       %s
                   Ответств.:   %s
                   Создана:     %s
                   Обновлена:   %s
@@ -652,8 +654,8 @@ public class Main {
                 a.title(),
                 a.category(),
                 a.description(),
-                a.userId(),
-                assignee,
+                authorFio,
+                assigneeFio,
                 a.createdAt(),
                 updatedAt,
                 comment

@@ -14,7 +14,7 @@ import java.util.Optional;
 public class CategoryConfig {
 
     private static final ObjectMapper OBJECTMAPPER = new ObjectMapper();
-    private static final TypeReference<Map<Integer, String>> REF= new TypeReference<>() {};
+    private static final TypeReference<Map<Integer, String>> REF = new TypeReference<>() {};
     private static final String URL = "categoryType.json";
     private static final Map<Integer, String> CATEGORIES = readJSON();
 

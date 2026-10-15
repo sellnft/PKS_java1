@@ -22,7 +22,6 @@ public final class ExcelExporter {
 
         File file = new File(filePath);
 
-        // Создаём папку, если её нет
         File parent = file.getParentFile();
         if (parent != null && !parent.exists()) {
             boolean created = parent.mkdirs();

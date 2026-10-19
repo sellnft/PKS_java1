@@ -3,6 +3,7 @@ package org.example.spring_kr2.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,16 +40,7 @@ public class UserEntity {
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    @NotBlank(message = "Роль не может быть пустой")
+    @NotNull(message = "Роль не может быть null")
     private UserRole role;
-
-    @Builder
-    public UserEntity(String login, String passwordHash, String fio, String email, UserRole role) {
-        this.login = login;
-        this.passwordHash = passwordHash;
-        this.fio = fio;
-        this.email = email;
-        this.role = role;
-    }
 
 }

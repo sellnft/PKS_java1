@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      spacing="15">
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <Label text="Вход в систему" styleClass="h3"/>
+
+    <TextField fx:id="FIOFileid" promptText="Логин" styleClass="form-control"/>
+    <TextField fx:id="emailField" promptText="Пароль" styleClass="form-control"/>
+
+    <Button text="Войти" onAction="#handleLogin" styleClass="btn, btn-primary"/>
+
+    <Label fx:id="errorLabel" styleClass="text-danger"/>
+</VBox>

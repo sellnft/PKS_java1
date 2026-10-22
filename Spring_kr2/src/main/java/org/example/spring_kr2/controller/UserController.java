@@ -25,6 +25,24 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
+    // штука, чекающая логин и пароль на существование
+    @PostMapping("/register/validate-existance")
+    public ResponseEntity<Void> validateBeforeAdd(@RequestBody UserValidatationRequestDto req){
+        String login = req.login();
+        String email = req.email();
+
+        if (userRepository.existsByLogin(login)) {
+            throw UserAlreadyExistsException.byLogin();
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw UserAlreadyExistsException.byEmail(email);
+        }
+
+        }
+    }
+
+
+
     //@PostMapping("/login")
     // ResponseEntity<UserResponseLoginDto> loginUser();
 }

@@ -18,22 +18,16 @@ public class UserService {
 
     @Transactional
     public UserResponseRegisterDto registerNewUser(String login, String password, String fio, String email, UserRole role) {
-        if (userRepository.existsByLogin(login)) {
-            throw new UserAlreadyExistsException("Пользователь" + "с логином " + login + " уже существует");
-        }
-
-        if (userRepository.existsByEmail(email)) {
-            throw new UserAlreadyExistsException("Пользователь" + "с email " + email + " уже существует");
-        }
 
         String passwordHash = PasswordHasher.hashPassword(password);
 
         UserEntity newUser = new UserEntity();
+
         newUser.setLogin(login.trim());
         newUser.setPasswordHash(passwordHash);
         newUser.setFio(fio);
         newUser.setEmail(email.trim().toLowerCase());
-        newUser.setRole(role);
+        newUser.setRole(UserRole.USER);
 
         UserEntity savedUser = userRepository.save(newUser);
         return UserResponseRegisterDto.from(savedUser);

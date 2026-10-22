@@ -1,4 +1,4 @@
-package org.example.spring_kr2.model;
+package org.example.spring_kr2.model
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

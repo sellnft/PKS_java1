@@ -23,6 +23,18 @@ public class RegistrationController {
     private String savedLogin;
     private String savedPassword;
 
+    @FXML
+    public void handleDataFields(){
+        savedLogin = loginFiled.getText();
+        savedPassword = passwordField.getText();
+        if (userRepository.existsByLogin(login)) {
+            throw UserAlreadyExistsException.byLogin();
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw UserAlreadyExistsException.byEmail(email);
+        }
+
+    }
 
 
 }

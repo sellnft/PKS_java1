@@ -1,6 +1,6 @@
 package org.example.spring_kr2.dto;
 
-import model.UserRole;
+import org.example.spring_kr2.model.UserRole;
 import org.example.spring_kr2.model.UserEntity;
 
 public record UserResponseRegisterDto(Integer id, String login, String fio, String email, UserRole role) {

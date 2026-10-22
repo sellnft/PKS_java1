@@ -1,11 +1,8 @@
 package org.example.spring_kr2.model;
 
-
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
-import model.AnnouncementStatus;
 
 import java.time.OffsetDateTime;
 
@@ -18,25 +15,20 @@ public class AnnouncementEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "category")
-    @NotBlank(message = "Категория не может быть пустой")
+    @Column(name = "category", nullable = false)
     private String category;
 
-    @Column(name = "title")
-    @NotBlank(message = "Заголовок не может быть пустым")
+    @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "description")
-    @NotBlank(message = "Описание не может быть пустым")
+    @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "status")
-    @NotBlank(message = "Статус не может быть пустым")
+    @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private AnnouncementStatus status;
 
-    @Column(name = "created_at")
-    @NotBlank(message = "Время создания не может быть пустым")
+    @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
     @Column(name = "updated_at")
@@ -45,11 +37,11 @@ public class AnnouncementEntity {
     @Column(name = "comment")
     private String comment;
 
-    @Column(name = "employee_id")
-    private Integer employeeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
-    @Column(name = "user_id")
-    @NotBlank(message = "Контрагент заявки не может быть пустым")
-    private Integer userId;
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id")
+    private UserEntity employee;
 }

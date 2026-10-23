@@ -15,5 +15,5 @@
 
     <Button text="Войти" onAction="#handleLogin" styleClass="btn, btn-primary"/>
 
-    <Label fx:id="errorLabel" styleClass="text-danger"/>
+    <VBox fx:id="errorContainer" visible = "False" styleClass="text-danger"/>
 </VBox>

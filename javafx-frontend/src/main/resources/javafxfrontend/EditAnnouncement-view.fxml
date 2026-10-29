@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="javafxfrontend.controller.EditAnnouncementController"
+      spacing="15" stylesheets="@styles.css"
+      prefWidth="500" prefHeight="450"
+      alignment="TOP_CENTER">
+
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <Label text="Редактирование заявки" styleClass="h3"/>
+
+    <Label fx:id="titleLabel" style="-fx-font-size: 16px; -fx-text-fill: #2c3e50;"/>
+
+    <Label text="Статус:"/>
+    <ComboBox fx:id="statusCombo" styleClass="form-control" maxWidth="Infinity"/>
+
+    <Label text="Комментарий (обязателен для DONE/CANCELLED):"/>
+    <TextArea fx:id="commentField" styleClass="form-control"
+              prefHeight="120" wrapText="true" VBox.vgrow="ALWAYS"/>
+
+    <Button text="Сохранить" onAction="#handleSave"
+            styleClass="main-button" maxWidth="Infinity"/>
+
+    <Label fx:id="errorLabel" visible="false" managed="false" styleClass="text-danger"/>
+</VBox>

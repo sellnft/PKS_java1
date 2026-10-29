@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.StackPane?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="javafxfrontend.controller.StatsController"
+           stylesheets="@styles.css">
+
+    <VBox styleClass="card" spacing="15" alignment="CENTER_LEFT" maxWidth="400">
+
+        <Label text="Статистика" styleClass="h3"/>
+
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="Всего заявок:" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="totalLabel" text="0" style="-fx-font-size: 14px;"/>
+        </HBox>
+
+        <Separator/>
+
+        <HBox alignment="CENTER_LEFT">
+            <Label text="В ожидании (PENDING):" style="-fx-text-fill: #6c757d;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="pendingLabel" text="0"/>
+        </HBox>
+
+        <HBox alignment="CENTER_LEFT">
+            <Label text="В работе (IN_PROGRESS):" style="-fx-text-fill: #0d6efd;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="inProgressLabel" text="0"/>
+        </HBox>
+
+        <HBox alignment="CENTER_LEFT">
+            <Label text="Выполнено (DONE):" style="-fx-text-fill: #198754;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="doneLabel" text="0"/>
+        </HBox>
+
+        <HBox alignment="CENTER_LEFT">
+            <Label text="Отменено (CANCELLED):" style="-fx-text-fill: #dc3545;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="cancelledLabel" text="0"/>
+        </HBox>
+
+        <Separator/>
+
+        <Button text="Закрыть" onAction="#handleClose" styleClass="main-button" maxWidth="Infinity"/>
+
+    </VBox>
+</StackPane>

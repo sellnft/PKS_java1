@@ -17,9 +17,5 @@ public record UserRequestRegisterDto(
 
         @NotBlank(message = "Email не может быть пустым")
         @Email(message = "Email некорректен")
-        String email,
-
-        @NotNull(message = "Роль не может быть пустой")
-        UserRole role
-
+        String email
 ) {}

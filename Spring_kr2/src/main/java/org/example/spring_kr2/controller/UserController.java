@@ -2,11 +2,9 @@ package org.example.spring_kr2.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.spring_kr2.dto.UserRequestRegisterDto;
-import org.example.spring_kr2.dto.UserResponseRegisterDto;
+import org.example.spring_kr2.dto.*;
 import org.example.spring_kr2.service.UserService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,28 +19,20 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<UserResponseRegisterDto> registerUser(@Valid @RequestBody UserRequestRegisterDto request) {
-        UserResponseRegisterDto dto = userService.registerNewUser(request.login(), request.password(), request.fio(), request.email(), request.role());
+        UserResponseRegisterDto dto = userService.registerNewUser(request.login(), request.password(), request.fio(), request.email());
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
     // штука, чекающая логин и пароль на существование
     @PostMapping("/register/validate-existance")
-    public ResponseEntity<Void> validateBeforeAdd(@RequestBody UserValidatationRequestDto req){
-        String login = req.login();
-        String email = req.email();
-
-        if (userRepository.existsByLogin(login)) {
-            throw UserAlreadyExistsException.byLogin();
-        }
-        if (userRepository.existsByEmail(email)) {
-            throw UserAlreadyExistsException.byEmail(email);
-        }
-
-        }
+    public ResponseEntity<Void> validateBeforeAdd(@RequestBody UserValidationRequestDto request){
+        userService.validateBeforeAdd(request.login(), request.email());
+        return ResponseEntity.ok().build();
     }
 
-
-
-    //@PostMapping("/login")
-    // ResponseEntity<UserResponseLoginDto> loginUser();
+    @PostMapping("/login")
+    public ResponseEntity<UserResponseLoginDto> login(@RequestBody UserRequestLoginDto request) {
+        UserResponseLoginDto response = userService.loginUser(request.login(), request.password());
+        return ResponseEntity.ok(response);
+    }
 }

@@ -10,6 +10,7 @@ import org.example.spring_kr2.exception.UserNotFoundException;
 import org.example.spring_kr2.model.AnnouncementEntity;
 import org.example.spring_kr2.model.AnnouncementStatus;
 import org.example.spring_kr2.model.UserEntity;
+import org.example.spring_kr2.model.UserRole;
 import org.example.spring_kr2.repository.AnnouncementRepository;
 import org.example.spring_kr2.repository.UserRepository;
 import org.example.spring_kr2.util.CategoryConfig;
@@ -56,14 +57,22 @@ public class AnnouncementService {
         return AnnouncementDetailResponseDto.from(found);
     }
 
-    public List<AnnouncementResponseDto> getAllAnnouncements() {
-        ArrayList<AnnouncementResponseDto> announcements = new ArrayList<>();
+    public List<AnnouncementResponseDto> getAllAnnouncements(String login) {
+        UserEntity user = userRepository.findByLogin(login)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
 
-        for (AnnouncementEntity announcement : announcementRepository.findAll()) {
-            announcements.add(AnnouncementResponseDto.from(announcement));
+        List<AnnouncementEntity> list;
+        if (user.getRole() == UserRole.USER) {
+            list = announcementRepository.findAllByUser(user);
+        } else {
+            list = announcementRepository.findAll();
         }
 
-        return announcements;
+        List<AnnouncementResponseDto> result = new ArrayList<>();
+        for (AnnouncementEntity a : list) {
+            result.add(AnnouncementResponseDto.from(a));
+        }
+        return result;
     }
 
     @Transactional
@@ -86,11 +95,20 @@ public class AnnouncementService {
     }
 
     @Transactional
-    public AnnouncementDoneStatusDto setDoneStatusToAnnouncement(Integer id) {
-        AnnouncementEntity announcement = announcementRepository.findById(id).orElseThrow(() -> new AnnouncementNotFoundException("Заявка с таким ID не найдена"));
+    public AnnouncementDoneStatusDto setDoneStatusToAnnouncement(Integer id, String comment) {
+        // 1. Проверяем, что комментарий не пустой
+        if (comment == null || comment.trim().isEmpty()) {
+            throw new IllegalArgumentException("Комментарий обязателен для закрытия заявки!");
+        }
+
+        AnnouncementEntity announcement = announcementRepository.findById(id)
+                .orElseThrow(() -> new AnnouncementNotFoundException("Заявка с таким ID не найдена"));
+
         OffsetDateTime ofd = OffsetDateTime.now(AnnouncementService.zoneId);
 
+        // 2. Устанавливаем статус и комментарий
         announcement.setStatus(AnnouncementStatus.DONE);
+        announcement.setComment(comment.trim()); // Сохраняем комментарий
         announcement.setUpdatedAt(ofd);
 
         AnnouncementEntity saved = announcementRepository.save(announcement);
@@ -107,5 +125,27 @@ public class AnnouncementService {
 
         AnnouncementEntity saved = announcementRepository.save(announcement);
         return AnnouncementCancelledStatusDto.from(saved);
+    }
+    @Transactional
+    public AnnouncementResponseDto updateStatusAndComment(Integer id, AnnouncementStatus newStatus, String comment) {
+        AnnouncementEntity announcement = announcementRepository.findById(id)
+                .orElseThrow(() -> new AnnouncementNotFoundException("Заявка с таким ID не найдена"));
+
+        if ((newStatus == AnnouncementStatus.DONE || newStatus == AnnouncementStatus.CANCELLED)
+                && (comment == null || comment.trim().isEmpty())) {
+            throw new IllegalArgumentException("Для статуса " + newStatus + " комментарий обязателен!");
+        }
+
+        OffsetDateTime ofd = OffsetDateTime.now(AnnouncementService.zoneId);
+
+        announcement.setStatus(newStatus);
+        announcement.setUpdatedAt(ofd);
+
+        if (comment != null && !comment.trim().isEmpty()) {
+            announcement.setComment(comment.trim());
+        }
+
+        AnnouncementEntity saved = announcementRepository.save(announcement);
+        return AnnouncementResponseDto.from(saved);
     }
 }

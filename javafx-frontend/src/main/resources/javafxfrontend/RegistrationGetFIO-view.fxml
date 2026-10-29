@@ -2,17 +2,26 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      spacing="15">
-    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="javafxfrontend.controller.Step2RegistrationController"
+           stylesheets="@styles.css">
 
-    <Label text="Вход в систему" styleClass="h3"/>
+    <VBox styleClass="card" spacing="15" alignment="CENTER" maxWidth="450">
 
-    <TextField fx:id="FIOFileid" promptText="Логин" styleClass="form-control"/>
-    <TextField fx:id="emailField" promptText="Пароль" styleClass="form-control"/>
+        <Label text="Ваши ФИО" styleClass="h3"/>
 
-    <Button text="Войти" onAction="#handleLogin" styleClass="btn, btn-primary"/>
+        <TextField fx:id="LastName" promptText="Фамилия" styleClass="form-control"/>
+        <TextField fx:id="Name" promptText="Имя" styleClass="form-control"/>
+        <TextField fx:id="Patronymic" promptText="Отчество" styleClass="form-control"/>
 
-    <Label fx:id="errorLabel" styleClass="text-danger"/>
-</VBox>
+        <Button fx:id="registerButton" text="Зарегистрироваться" onAction="#handleRegistration"
+                styleClass="main-button" maxWidth="Infinity"/>
+
+        <Button text="Назад" onAction="#goBack"
+                styleClass="btn-secondary" maxWidth="Infinity"/>
+
+        <Label fx:id="errorLabel" visible="false" managed="false" styleClass="text-danger"/>
+    </VBox>
+</StackPane>

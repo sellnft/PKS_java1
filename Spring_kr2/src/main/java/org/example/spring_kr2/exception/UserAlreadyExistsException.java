@@ -6,9 +6,9 @@ public class UserAlreadyExistsException extends RuntimeException {
     }
 
     public static UserAlreadyExistsException byLogin(){
-        return new UserAlreadyExistsException('Имя пользователя занято');
+        return new UserAlreadyExistsException("Имя пользователя занято");
     }
     public static UserAlreadyExistsException byEmail(String email){
-        return new UserAlreadyExistsException('Пользователь с email'+email+'уже существует');
+        return new UserAlreadyExistsException("Пользователь с email"+email+"уже существует");
     }
 }

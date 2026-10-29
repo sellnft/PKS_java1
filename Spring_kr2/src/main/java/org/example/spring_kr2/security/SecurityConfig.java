@@ -1,17 +1,28 @@
 package org.example.spring_kr2.security;
 
+import org.example.spring_kr2.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy; // <--- ДОБАВЬ ИМПОРТ
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private final UserService userService;
+
+    public SecurityConfig(@Lazy UserService userService) {
+        this.userService = userService;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -19,21 +30,33 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-
-                // Настраиваем правила доступа
                 .authorizeHttpRequests(auth -> auth
-                        // Эндпоинты, доступные БЕЗ токена (регистрация и логин)
-                        .requestMatchers("/api/users/register", "/api/announcements/create", "/api/announcements/get/*", "/api/announcements/all", "/api/announcements/*/setEmployee/*", "/api/announcements/setDoneStatus/*").permitAll()
-                        // Всё остальное — только с токеном
-                        .anyRequest().authenticated()
+                        .requestMatchers(
+                                "/api/users/register",
+                                "/api/users/register/validate-existance",
+                                "/api/users/login",
+                                "/api/announcements/create",
+                                "/api/announcements/get/*",
+                                "/api/announcements/all",
+                                "/api/announcements/*/setEmployee/*",
+                                "/api/announcements/setDoneStatus/*",
+                                "/api/announcements/setCancelledStatus/*",
+                                "/api/announcements/*/status"
+                        ).permitAll()
                 )
-
-                // Говорим Spring Security не создавать сессии (для JWT)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

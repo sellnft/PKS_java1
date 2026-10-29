@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="javafxfrontend.controller.AddAnnouncementController"
+      spacing="15" stylesheets="@styles.css"
+      prefWidth="500" prefHeight="550"
+      alignment="TOP_CENTER">
+
+    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+    <Label text="Новая заявка" styleClass="h3"/>
+
+    <TextField fx:id="titleField" promptText="Краткое название" styleClass="form-control"/>
+
+    <ComboBox fx:id="categoryCombo" promptText="Выберите категорию" styleClass="form-control" maxWidth="Infinity"/>
+
+    <TextArea fx:id="descField" promptText="Подробное описание проблемы..."
+              styleClass="form-control" prefHeight="200" wrapText="true" VBox.vgrow="ALWAYS"/>
+
+    <Button text="Сохранить" onAction="#handleSave" styleClass="main-button" maxWidth="Infinity"/>
+</VBox>

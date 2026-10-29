@@ -3,9 +3,11 @@ package org.example.spring_kr2.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.spring_kr2.dto.*;
+import org.example.spring_kr2.model.AnnouncementStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.example.spring_kr2.service.AnnouncementService;
 
@@ -35,9 +37,9 @@ public class AnnouncementController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<AnnouncementResponseDto>> getAllAnnouncements() {
-        List<AnnouncementResponseDto> announcements = announcementService.getAllAnnouncements();
-        return ResponseEntity.status(HttpStatus.OK).body(announcements);
+    public ResponseEntity<List<AnnouncementResponseDto>> getAllAnnouncements(Authentication authentication) {
+        String login = authentication.getName();
+        return ResponseEntity.ok(announcementService.getAllAnnouncements(login));
     }
 
     @PatchMapping("/{id}/setEmployee/{employeeId}")
@@ -48,20 +50,33 @@ public class AnnouncementController {
         return ResponseEntity.status(HttpStatus.OK).body(dto);
     }
 
-    @PatchMapping("/setDoneStatus/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
-    public ResponseEntity<AnnouncementDoneStatusDto> setDoneStatus(@PathVariable Integer id) {
-        AnnouncementDoneStatusDto dto = announcementService.setDoneStatusToAnnouncement(id);
-
+    @PatchMapping("/setCancelledStatus/{id}")
+    public ResponseEntity<AnnouncementCancelledStatusDto> setCancelStatus(@PathVariable("id") Integer id) {
+        AnnouncementCancelledStatusDto dto = announcementService.setCancelledStatus(id);
         return ResponseEntity.status(HttpStatus.OK).body(dto);
     }
-
-    @PatchMapping("/setCancelledStatus/{id}")
+    @PatchMapping("/setDoneStatus/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
-    public ResponseEntity<AnnouncementCancelledStatusDto> setCancelStatus(@PathVariable Integer id) {
-        AnnouncementCancelledStatusDto dto = announcementService.setCancelledStatus(id);
+    public ResponseEntity<AnnouncementDoneStatusDto> setDoneStatus(@PathVariable("id") Integer id, @RequestParam("comment") String comment) {
 
+        AnnouncementDoneStatusDto dto = announcementService.setDoneStatusToAnnouncement(id, comment);
         return ResponseEntity.status(HttpStatus.OK).body(dto);
+    }
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<AnnouncementResponseDto> updateStatusAndComment(
+            @PathVariable("id") Integer id,
+            @RequestParam("status") String status,
+            @RequestParam(value = "comment", required = false) String comment) {
+
+        AnnouncementStatus newStatus;
+        try {
+            newStatus = AnnouncementStatus.valueOf(status);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Неизвестный статус: " + status);
+        }
+
+        AnnouncementResponseDto dto = announcementService.updateStatusAndComment(id, newStatus, comment);
+        return ResponseEntity.ok(dto);
     }
 
 }

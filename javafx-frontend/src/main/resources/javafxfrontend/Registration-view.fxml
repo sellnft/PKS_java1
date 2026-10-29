@@ -1,19 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
 
-<VBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="javafxfrontend.controller.RegistrationController"
-      spacing="15">
-    <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:id="rootPane"
+           focusTraversable="true"
+           fx:controller="javafxfrontend.controller.RegistrationController"
+           stylesheets="@styles.css">
 
-    <Label text="Вход в систему" styleClass="h3"/>
+    <VBox styleClass="card" spacing="15" alignment="CENTER"
+          maxWidth="450" maxHeight="550">
 
-    <TextField fx:id="loginField" promptText="Логин" styleClass="form-control"/>
-    <PasswordField fx:id="passwordField" promptText="Пароль" styleClass="form-control"/>
+        <Label text="Регистрация" styleClass="h3" style="-fx-padding: 0 0 10 0;"/>
 
-    <Button text="Войти" onAction="#handleLogin" styleClass="btn, btn-primary"/>
+        <TextField fx:id="emailField" promptText="Почта" styleClass="form-control"/>
+        <TextField fx:id="loginField" promptText="Логин" styleClass="form-control"/>
+        <StackPane alignment="CENTER_RIGHT" maxWidth="Infinity">
 
-    <VBox fx:id="errorContainer" visible = "False" styleClass="text-danger"/>
-</VBox>
+            <PasswordField fx:id="passwordField" promptText="Пароль" styleClass="form-control" maxWidth="Infinity"/>
+
+            <TextField fx:id="visiblePasswordField" promptText="Пароль" styleClass="form-control" maxWidth="Infinity" visible="false" managed="false"/>
+
+            <Button text="👁" onAction="#togglePassword"
+                    style="-fx-background-color: transparent; -fx-text-fill: #6c757d; -fx-cursor: hand; -fx-font-size: 16px; -fx-padding: 0 15 0 0;"/>
+        </StackPane>
+
+        <Button fx:id="nextButton" text="Дальше" onAction="#NextSTepRegistration"
+                styleClass="main-button" maxWidth="Infinity"/>
+        <Label fx:id="errorLabel" visible="false" managed="false" styleClass="text-danger"/>
+        <Button text="Уже есть аккаунт? Войти" onAction="#goToLogin"
+                style="-fx-background-color: transparent; -fx-text-fill: #0d6efd; -fx-cursor: hand; -fx-font-size: 13px; -fx-underline: true;"/>
+    </VBox>
+</StackPane>

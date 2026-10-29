@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="javafxfrontend.controller.MainController"
+            stylesheets="@styles.css">
+
+    <top>
+        <HBox spacing="10" style="-fx-padding: 15; -fx-background-color: #ffffff; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);" alignment="CENTER_LEFT">
+            <Button text="Добавить" onAction="#handleAdd" styleClass="main-button"/>
+            <Button text="Редактировать" onAction="#handleEdit" styleClass="secondary-button"/>
+            <Button text="Удалить" onAction="#handleDelete" styleClass="danger-button"/>
+            <Region HBox.hgrow="ALWAYS" />
+            <Button text="Экспорт в Excel" onAction="#handleExport" styleClass="secondary-button"/>
+            <Button text="Статистика" onAction="#goToStats" styleClass="secondary-button"/>
+            <Button text="Выход" onAction="#handleLogout" styleClass="danger-button"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="10">
+            <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="searchField" promptText="Поиск..." styleClass="form-control" prefWidth="300"/>
+                <ComboBox fx:id="filterCombo" promptText="Фильтр" styleClass="form-control"/>
+                <Button text="Найти" onAction="#handleSearch" styleClass="main-button"/>
+                <Button text="Сбросить" onAction="#handleReset" styleClass="secondary-button"/>
+            </HBox>
+
+            <TableView fx:id="mainTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+                    <TableColumn fx:id="colTitle" text="Название" prefWidth="200"/>
+                    <TableColumn fx:id="colCategory" text="Категория" prefWidth="150"/>
+                    <TableColumn fx:id="colStatus" text="Статус" prefWidth="120"/>
+                    <TableColumn fx:id="colDate" text="Дата" prefWidth="150"/>
+                    <TableColumn fx:id="colComment" text="Комментарий" prefWidth="200"/>
+                </columns>
+            </TableView>
+
+            <Label fx:id="emptyLabel" text="Заявок пока нет"
+                   styleClass="empty-state"
+                   visible="false"
+                   mouseTransparent="true"/>
+        </VBox>
+    </center>
+</BorderPane>

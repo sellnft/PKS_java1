@@ -36,7 +36,7 @@ public class FXApplication extends Application {
         scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
 
         scene.getStylesheets().add(BootstrapFX.bootstrapFXStylesheet());
-        stage.setTitle("Система обработотк заявок и тд");
+        stage.setTitle("Система обработки заявок");
         stage.setScene(scene);
         stage.setOnCloseRequest(event -> {
             Platform.exit();

@@ -10,7 +10,8 @@
     <packaging>pom</packaging> <!-- ВАЖНО: теперь это родительский проект -->
 
     <modules>
-        <module>Spring_kr2</module> <!-- Подключаем твой Spring-модуль -->
+        <module>Spring_kr2</module>
+        <module>javafx-frontend</module><!-- Подключаем твой Spring-модуль -->
     </modules>
 
     <properties>

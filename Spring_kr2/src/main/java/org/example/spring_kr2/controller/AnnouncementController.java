@@ -3,7 +3,10 @@ package org.example.spring_kr2.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.spring_kr2.dto.*;
+import org.example.spring_kr2.exception.UserNotFoundException;
 import org.example.spring_kr2.model.AnnouncementStatus;
+import org.example.spring_kr2.model.UserEntity;
+import org.example.spring_kr2.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,12 +23,20 @@ import java.util.List;
 public class AnnouncementController {
 
     private final AnnouncementService announcementService;
+    private final UserRepository userRepository;
 
     @PostMapping("/create")
-    public ResponseEntity<AnnouncementResponseDto> createNewAnnouncement(@Valid @RequestBody AnnouncementAddedRequestDto request) {
-        Integer currentUserId = 1; //TODO: закомментить при появлении реальных данных;
+    public ResponseEntity<AnnouncementResponseDto> createNewAnnouncement(@Valid @RequestBody AnnouncementAddedRequestDto request, Authentication authentication) {
+        String login = authentication.getName();
+        UserEntity currentUser = userRepository.findByLogin(login)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"));
 
-        AnnouncementResponseDto dto = announcementService.addNewAnnouncement(currentUserId, request.category(), request.title(), request.description());
+        AnnouncementResponseDto dto = announcementService.addNewAnnouncement(
+                currentUser.getId(),
+                request.category(),
+                request.title(),
+                request.description()
+        );
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 

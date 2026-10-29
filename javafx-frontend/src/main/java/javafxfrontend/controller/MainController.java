@@ -35,6 +35,7 @@ public class MainController implements Initializable {
     @FXML private TableColumn<AnnouncementResponseDto, String> colTitle;
     @FXML private TableColumn<AnnouncementResponseDto, String> colCategory;
     @FXML private TableColumn<AnnouncementResponseDto, String> colStatus;
+    @FXML private TableColumn<AnnouncementResponseDto, String> colDescripton;
     @FXML private TableColumn<AnnouncementResponseDto, String> colDate;
     @FXML private TableColumn<AnnouncementResponseDto, String> colComment;
     @FXML private Label emptyLabel;
@@ -46,7 +47,6 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Важно: используем cellData.getValue() для доступа к DTO
         colId.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().id()).asObject());
         colTitle.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().title()));
         colCategory.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().category()));
@@ -56,6 +56,12 @@ public class MainController implements Initializable {
             String comment = cellData.getValue().comment();
             return new SimpleStringProperty(comment != null ? comment : "");
         });
+
+        colDescripton.setCellValueFactory(cellData -> {
+            String desc = cellData.getValue().description();
+            return new SimpleStringProperty(desc != null ? desc : "");
+        });
+
         filterCombo.setItems(FXCollections.observableArrayList("Все", "PENDING", "IN_PROGRESS", "DONE", "CANCELLED"));
         loadData();
     }
@@ -111,21 +117,19 @@ public class MainController implements Initializable {
         });
     }
 
-    // --- Заглушки для остальных кнопок ---
     @FXML
     public void handleAdd() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/javafxfrontend/AddAnnouncement-view.fxml"));
             Parent root = loader.load();
 
-            // Получаем контроллер нового окна и передаем ему ссылку на этот (MainController)
             AddAnnouncementController addController = loader.getController();
             addController.setMainController(this);
 
             Stage stage = new Stage();
             stage.setTitle("Добавление заявки");
             stage.setScene(new Scene(root));
-            stage.initModality(javafx.stage.Modality.WINDOW_MODAL); // Блокирует главное окно, пока не закроют это
+            stage.initModality(javafx.stage.Modality.WINDOW_MODAL);
             stage.initOwner(mainTable.getScene().getWindow());
             stage.show();
 
@@ -133,6 +137,7 @@ public class MainController implements Initializable {
             e.printStackTrace();
         }
     }
+
     @FXML
     public void handleEdit() {
         AnnouncementResponseDto selected = mainTable.getSelectionModel().getSelectedItem();
@@ -216,6 +221,7 @@ public class MainController implements Initializable {
             }
         });
     }
+
     @FXML
     public void handleExport() {
         if (data.isEmpty()) {
@@ -237,8 +243,8 @@ public class MainController implements Initializable {
                 showAlert("Ошибка", "Не удалось сохранить: " + e.getMessage());
             }
         }
-
     }
+
     @FXML
     public void goToStats() {
         if (data.isEmpty()) {

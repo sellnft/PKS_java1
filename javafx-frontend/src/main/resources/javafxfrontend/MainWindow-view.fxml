@@ -36,6 +36,7 @@
                     <TableColumn fx:id="colTitle" text="Название" prefWidth="200"/>
                     <TableColumn fx:id="colCategory" text="Категория" prefWidth="150"/>
                     <TableColumn fx:id="colStatus" text="Статус" prefWidth="120"/>
+                    <TableColumn fx:id="colDescripton" text="Описание" prefWidth="250"/>
                     <TableColumn fx:id="colDate" text="Дата" prefWidth="150"/>
                     <TableColumn fx:id="colComment" text="Комментарий" prefWidth="200"/>
                 </columns>

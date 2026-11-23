@@ -12,6 +12,7 @@
             <Button text="Добавить" onAction="#handleAdd" styleClass="main-button"/>
             <Button text="Редактировать" onAction="#handleEdit" styleClass="secondary-button"/>
             <Button text="Удалить" onAction="#handleDelete" styleClass="danger-button"/>
+            <Button fx:id="btnTakeInWork" text="Взять в работу" onAction="#handleSetEmployee" styleClass="main-button"/>
             <Region HBox.hgrow="ALWAYS" />
             <Button text="Экспорт в Excel" onAction="#handleExport" styleClass="secondary-button"/>
             <Button text="Статистика" onAction="#goToStats" styleClass="secondary-button"/>

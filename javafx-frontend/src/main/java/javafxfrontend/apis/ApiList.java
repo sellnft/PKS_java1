@@ -36,4 +36,8 @@ public interface ApiList {
     );
     @PATCH("/api/announcements/setCancelledStatus/{id}")
     Call<AnnouncementCancelledStatusDto> cancelAnnouncement(@Path("id") Integer id);
+
+    @PATCH("/api/announcements/{id}/setEmployee")
+    Call<AnnouncementResponseDto> setEmployeeToAnnouncement(@Path("id") Integer id);
+
 }

@@ -1,0 +1,59 @@
+сент. 24, 2026 6:35:46 PM repository.JDBCUserRepository checkIfUserExistsByLogin
+INFO: Успешная проверка пользователя по логину
+сент. 24, 2026 6:35:46 PM repository.JDBCUserRepository checkIfUserExistsByEmail
+INFO: Успешная проверка пользователя по email
+сент. 24, 2026 6:36:33 PM repository.JDBCUserRepository checkIfUserExistsByLogin
+INFO: Успешная проверка пользователя по логину
+сент. 24, 2026 6:36:33 PM repository.JDBCUserRepository checkIfUserExistsByEmail
+INFO: Успешная проверка пользователя по email
+сент. 24, 2026 6:36:34 PM repository.JDBCUserRepository addUser
+SEVERE: Ошибка добавления пользователя
+org.postgresql.util.PSQLException: ОШИБКА: значение не умещается в тип character varying(64)
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2733)
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2420)
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:372)
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:517)
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:434)
+	at org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:194)
+	at org.postgresql.jdbc.PgPreparedStatement.executeUpdate(PgPreparedStatement.java:155)
+	at repository.JDBCUserRepository.addUser(JDBCUserRepository.java:30)
+	at service.UserService.registerUser(UserService.java:31)
+	at Main.registerUserFlow(Main.java:84)
+	at Main.guestLoop(Main.java:46)
+	at Main.main(Main.java:34)
+
+сент. 24, 2026 6:39:18 PM repository.JDBCUserRepository checkIfUserExistsByLogin
+INFO: Успешная проверка пользователя по логину
+сент. 24, 2026 6:39:18 PM repository.JDBCUserRepository checkIfUserExistsByEmail
+INFO: Успешная проверка пользователя по email
+сент. 24, 2026 6:39:38 PM repository.JDBCUserRepository checkIfUserExistsByLogin
+INFO: Успешная проверка пользователя по логину
+сент. 24, 2026 6:39:38 PM repository.JDBCUserRepository checkIfUserExistsByEmail
+INFO: Успешная проверка пользователя по email
+сент. 24, 2026 6:40:38 PM repository.JDBCUserRepository checkIfUserExistsByLogin
+INFO: Успешная проверка пользователя по логину
+сент. 24, 2026 6:40:38 PM repository.JDBCUserRepository checkIfUserExistsByEmail
+INFO: Успешная проверка пользователя по email
+сент. 24, 2026 6:40:38 PM repository.JDBCUserRepository addUser
+INFO: Новый пользователь успешно довбавлен
+сент. 24, 2026 6:41:29 PM repository.JDBCUserRepository findUserByLogin
+INFO: Пользователь успешно найден
+сент. 24, 2026 6:41:37 PM repository.JDBCAnnouncementRepository getAllAnnouncementsOfUser
+INFO: Заявки пользователя 4 успешно получены
+сент. 24, 2026 6:42:14 PM repository.JDBCAnnouncementRepository addAnnouncement
+SEVERE: Ошибка добавления заявки
+org.postgresql.util.PSQLException: ОШИБКА: значение не умещается в тип character varying(255)
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2733)
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2420)
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:372)
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:517)
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:434)
+	at org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:194)
+	at org.postgresql.jdbc.PgPreparedStatement.executeUpdate(PgPreparedStatement.java:155)
+	at repository.JDBCAnnouncementRepository.addAnnouncement(JDBCAnnouncementRepository.java:54)
+	at service.AnnouncementService.createNewAnnouncement(AnnouncementService.java:37)
+	at Main.createAnnouncementFlow(Main.java:242)
+	at Main.handleClientChoice(Main.java:183)
+	at Main.userLoop(Main.java:121)
+	at Main.main(Main.java:36)
+

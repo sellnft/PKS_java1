@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.example.spring_kr2.service.AnnouncementService;
 
@@ -53,26 +54,31 @@ public class AnnouncementController {
         return ResponseEntity.ok(announcementService.getAllAnnouncements(login));
     }
 
-    @PatchMapping("/{id}/setEmployee/{employeeId}")
+    @PatchMapping("/{id}/setEmployee")
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
-    public ResponseEntity<AnnouncementSetEmployeeResponseDto> setEmployee(@PathVariable Integer id, @PathVariable Integer employeeId) {
+    public ResponseEntity<AnnouncementSetEmployeeResponseDto> setEmployee(@PathVariable Integer id, Authentication authentication) {
+        Integer employeeId = userRepository.findByLogin(authentication.getName())
+                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"))
+                .getId();
         AnnouncementSetEmployeeResponseDto dto = announcementService.setEmployeeToAnnouncement(id, employeeId);
 
         return ResponseEntity.status(HttpStatus.OK).body(dto);
     }
 
-    @PatchMapping("/setCancelledStatus/{id}")
-    public ResponseEntity<AnnouncementCancelledStatusDto> setCancelStatus(@PathVariable("id") Integer id) {
-        AnnouncementCancelledStatusDto dto = announcementService.setCancelledStatus(id);
-        return ResponseEntity.status(HttpStatus.OK).body(dto);
-    }
-    @PatchMapping("/setDoneStatus/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
-    public ResponseEntity<AnnouncementDoneStatusDto> setDoneStatus(@PathVariable("id") Integer id, @RequestParam("comment") String comment) {
+//    @PatchMapping("/setCancelledStatus/{id}")
+//    public ResponseEntity<AnnouncementCancelledStatusDto> setCancelStatus(@PathVariable("id") Integer id) {
+//        AnnouncementCancelledStatusDto dto = announcementService.setCancelledStatus(id);
+//        return ResponseEntity.status(HttpStatus.OK).body(dto);
+//    }
+//    @PatchMapping("/setDoneStatus/{id}")
+//    public ResponseEntity<AnnouncementDoneStatusDto> setDoneStatus(@PathVariable("id") Integer id, @RequestParam("comment") String comment) {
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        System.out.println("РОЛИ: " + auth.getAuthorities());
+//
+//        AnnouncementDoneStatusDto dto = announcementService.setDoneStatusToAnnouncement(id, comment);
+//        return ResponseEntity.status(HttpStatus.OK).body(dto);
+//    }
 
-        AnnouncementDoneStatusDto dto = announcementService.setDoneStatusToAnnouncement(id, comment);
-        return ResponseEntity.status(HttpStatus.OK).body(dto);
-    }
     @PatchMapping("/{id}/status")
     public ResponseEntity<AnnouncementResponseDto> updateStatusAndComment(
             @PathVariable("id") Integer id,

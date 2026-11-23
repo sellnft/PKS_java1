@@ -113,4 +113,31 @@ public class MainService {
             }
         });
     }
+
+    public void setEmployeeToAnnouncement(Integer id, DataCallback<AnnouncementResponseDto> callback) {
+        api.setEmployeeToAnnouncement(id).enqueue(new Callback<AnnouncementResponseDto>() {
+            @Override
+            public void onResponse(Call<AnnouncementResponseDto> call, Response<AnnouncementResponseDto> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    String msg = "Ошибка: " + response.code();
+                    if (response.code() == 400) {
+                        msg = "Нельзя взять отменённую заявку в работу";
+                    } else if (response.code() == 403) {
+                        msg = "У вас недостаточно прав для этого действия";
+                    }
+                    callback.onError(msg);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AnnouncementResponseDto> call, Throwable t) {
+                callback.onError("Сеть недоступна: " + t.getMessage());
+            }
+        });
+    }
+
+
+
 }

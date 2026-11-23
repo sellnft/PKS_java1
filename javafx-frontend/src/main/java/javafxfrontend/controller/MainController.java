@@ -21,10 +21,14 @@ import javafxfrontend.dto.AnnouncementCancelledStatusDto;
 import javafxfrontend.dto.AnnouncementDoneStatusDto;
 import javafxfrontend.dto.AnnouncementResponseDto;
 import javafxfrontend.service.MainService;
+import javafx.scene.control.Alert;
 
 import java.io.File;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -41,6 +45,7 @@ public class MainController implements Initializable {
     @FXML private Label emptyLabel;
     @FXML private TextField searchField;
     @FXML private ComboBox<String> filterCombo;
+    @FXML private Button btnTakeInWork;
 
     private final MainService mainService = new MainService();
     private ObservableList<AnnouncementResponseDto> data = FXCollections.observableArrayList();
@@ -307,6 +312,34 @@ public class MainController implements Initializable {
             e.printStackTrace();
         }
     }
+    @FXML
+    public void handleSetEmployee() {
+        AnnouncementResponseDto selected = mainTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert("Внимание", "Выберите заявку из таблицы!");
+            return;
+        }
+
+        // Подставьте ваш класс/метод, где хранится ID текущего пользователя после логина
+        Integer employeeId = SessionManager.getUserId();
+
+        mainService.setEmployeeToAnnouncement(selected.id(), employeeId, new MainService.DataCallback<AnnouncementResponseDto>() {
+            @Override
+            public void onSuccess(AnnouncementResponseDto result) {
+                Platform.runLater(() -> {
+                    loadData();
+                    showInfo("Успех", "Заявка успешно взята в работу!");
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                Platform.runLater(() -> showAlert("Ошибка", error));
+            }
+        });
+    }
+
+
 
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);

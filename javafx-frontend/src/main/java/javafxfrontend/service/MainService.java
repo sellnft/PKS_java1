@@ -114,12 +114,12 @@ public class MainService {
         });
     }
 
-    public void setEmployeeToAnnouncement(Integer id, DataCallback<AnnouncementResponseDto> callback) {
-        api.setEmployeeToAnnouncement(id).enqueue(new Callback<AnnouncementResponseDto>() {
+    public void setEmployeeToAnnouncement(Integer id, DataCallback<Void> callback) {
+        api.setEmployeeToAnnouncement(id).enqueue(new Callback<Void>() {
             @Override
-            public void onResponse(Call<AnnouncementResponseDto> call, Response<AnnouncementResponseDto> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    callback.onSuccess(null);
                 } else {
                     String msg = "Ошибка: " + response.code();
                     if (response.code() == 400) {
@@ -132,12 +132,9 @@ public class MainService {
             }
 
             @Override
-            public void onFailure(Call<AnnouncementResponseDto> call, Throwable t) {
+            public void onFailure(Call<Void> call, Throwable t) {
                 callback.onError("Сеть недоступна: " + t.getMessage());
             }
         });
     }
-
-
-
 }

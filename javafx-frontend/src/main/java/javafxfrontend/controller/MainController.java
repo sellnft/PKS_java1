@@ -1,8 +1,5 @@
 package javafxfrontend.controller;
 
-import javafx.stage.FileChooser;
-import javafxfrontend.util.ExcelExporter;
-import java.io.File;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -13,22 +10,25 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafxfrontend.dto.AnnouncementCancelledStatusDto;
 import javafxfrontend.dto.AnnouncementDoneStatusDto;
 import javafxfrontend.dto.AnnouncementResponseDto;
 import javafxfrontend.service.MainService;
-import javafx.scene.control.Alert;
+import javafxfrontend.util.ExcelExporter;
 
 import java.io.File;
-import java.io.PrintWriter;
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -320,12 +320,9 @@ public class MainController implements Initializable {
             return;
         }
 
-        // Подставьте ваш класс/метод, где хранится ID текущего пользователя после логина
-        Integer employeeId = SessionManager.getUserId();
-
-        mainService.setEmployeeToAnnouncement(selected.id(), employeeId, new MainService.DataCallback<AnnouncementResponseDto>() {
+        mainService.setEmployeeToAnnouncement(selected.id(), new MainService.DataCallback<Void>() {
             @Override
-            public void onSuccess(AnnouncementResponseDto result) {
+            public void onSuccess(Void result) {
                 Platform.runLater(() -> {
                     loadData();
                     showInfo("Успех", "Заявка успешно взята в работу!");

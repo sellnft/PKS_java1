@@ -2,6 +2,7 @@ package org.example.spring_kr2.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.spring_kr2.dto.AllUsersListDto;
+import org.example.spring_kr2.dto.UserPasswordRemainDto;
 import org.example.spring_kr2.dto.UserResponseForList;
 import org.example.spring_kr2.dto.UserResponseLoginDto;
 import org.example.spring_kr2.security.JwtService;
@@ -18,8 +19,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -71,6 +80,8 @@ public class UserService implements UserDetailsService {
         newUser.setFio(fio);
         newUser.setEmail(email.trim().toLowerCase());
         newUser.setRole(UserRole.USER);
+        newUser.setIsActive(true);
+        newUser.setPasswordUpdateDate(OffsetDateTime.now(ZoneOffset.ofHours(3)));
 
         UserEntity savedUser = userRepository.save(newUser);
         return UserResponseRegisterDto.from(savedUser);
@@ -85,5 +96,28 @@ public class UserService implements UserDetailsService {
         }
 
         return new AllUsersListDto(result);
+    }
+
+    public UserPasswordRemainDto checkPasswordRemain(Integer id) {
+        Optional<UserEntity> user = userRepository.findById(id);
+
+        if (user.isEmpty()) {
+            throw new UserNotFoundException("Пользователь не найден");
+        }
+
+        OffsetDateTime timeRemain = user.get().getPasswordUpdateDate();
+        return new UserPasswordRemainDto(user.get().getLogin(), user.get().getPasswordUpdateDate());
+    }
+
+    public void blockUser(Integer id) {
+        Optional<UserEntity> user = userRepository.findById(id);
+
+        if(user.isEmpty()) {
+            throw new UserNotFoundException("Пользователь не найден");
+        }
+
+        UserEntity userEntity = user.get();
+        userEntity.setIsActive(false);
+        //TODO: ДОПИСАТЬ ОТЖАТИЕ ТОКЕНОВ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
 }

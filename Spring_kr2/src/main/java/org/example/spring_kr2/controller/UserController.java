@@ -40,4 +40,16 @@ public class UserController {
         AllUsersListDto response = userService.getAllUsers();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/{id}/checkPasswordRemain")
+    public ResponseEntity<UserPasswordRemainDto> checkPasswordRemain(@PathVariable("id") Integer id) {
+        UserPasswordRemainDto dto = userService.checkPasswordRemain(id);
+
+        return ResponseEntity.ok(dto);
+    }
+
+    @PatchMapping("/{id}/block")
+    public ResponseEntity<Void> blockUser(@PathVariable("id") Integer id) {
+        userService.blockUser(id);
+    }
 }

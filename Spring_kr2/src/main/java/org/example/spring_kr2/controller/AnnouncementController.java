@@ -42,7 +42,7 @@ public class AnnouncementController {
     }
 
     @GetMapping("/get/{id}")
-    public ResponseEntity<AnnouncementDetailResponseDto> getAnnouncementById(@PathVariable Integer id) {
+    public ResponseEntity<AnnouncementDetailResponseDto> getAnnouncementById(@PathVariable("id") Integer id) {
         AnnouncementDetailResponseDto dto = announcementService.findAnnouncementById(id);
 
         return ResponseEntity.status(HttpStatus.OK).body(dto);
@@ -56,7 +56,7 @@ public class AnnouncementController {
 
     @PatchMapping("/{id}/setEmployee")
     @PreAuthorize("hasAnyRole('ADMIN', 'EMPLOYEE')")
-    public ResponseEntity<AnnouncementSetEmployeeResponseDto> setEmployee(@PathVariable Integer id, Authentication authentication) {
+    public ResponseEntity<AnnouncementSetEmployeeResponseDto> setEmployee(@PathVariable("id") Integer id, Authentication authentication) {
         Integer employeeId = userRepository.findByLogin(authentication.getName())
                 .orElseThrow(() -> new UserNotFoundException("Пользователь не найден"))
                 .getId();

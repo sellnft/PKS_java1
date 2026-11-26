@@ -4,12 +4,15 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.sql.Timestamp;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -46,6 +49,13 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Роль не может быть null")
     private UserRole role;
+
+    @Column(name = "password_update_date")
+    private OffsetDateTime passwordUpdateDate;
+
+    @Column(name = "is_active")
+    private Boolean isActive;
+
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AnnouncementEntity> announcements = new ArrayList<>();

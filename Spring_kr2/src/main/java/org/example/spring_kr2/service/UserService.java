@@ -1,6 +1,8 @@
 package org.example.spring_kr2.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.spring_kr2.dto.AllUsersListDto;
+import org.example.spring_kr2.dto.UserResponseForList;
 import org.example.spring_kr2.dto.UserResponseLoginDto;
 import org.example.spring_kr2.security.JwtService;
 import org.springframework.security.core.userdetails.User;
@@ -15,6 +17,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -71,4 +76,14 @@ public class UserService implements UserDetailsService {
         return UserResponseRegisterDto.from(savedUser);
     }
 
+    public AllUsersListDto getAllUsers() {
+        ArrayList<UserResponseForList> result = new ArrayList<>();
+        List<UserEntity> allUsers = userRepository.findAll();
+
+        for (UserEntity user : allUsers) {
+            result.add(UserResponseForList.from(user));
+        }
+
+        return new AllUsersListDto(result);
+    }
 }
